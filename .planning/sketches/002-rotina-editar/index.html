@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sketch 002 · Editar rotina</title>
+<link rel="stylesheet" href="../themes/default.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#111;font-family:var(--font-sans);color:var(--color-text);-webkit-font-smoothing:antialiased}
+body{padding:64px 16px 40px;min-height:100vh}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button{transition:all .15s ease}
+.mono{font-variant-numeric:tabular-nums}
+
+/* ---------- barra de variantes ---------- */
+#variant-nav{position:fixed;top:0;left:0;right:0;z-index:9998;background:#1a1a1a;border-bottom:1px solid #333;padding:8px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-family:system-ui;font-size:13px;color:#ddd}
+.variant-tab,.state-btn{padding:6px 12px;border-radius:8px;background:#2a2a2a;color:#ccc}
+.variant-tab:hover,.state-btn:hover{background:#383838}
+.variant-tab.active{background:#C2410C;color:#fff}
+.state-btn.active{outline:1px solid #C2410C;color:#fff}
+#variant-nav .sep{flex:1}
+#variant-nav .lbl{color:#777;font-size:12px}
+
+/* ---------- moldura ---------- */
+#stage{display:flex;justify-content:center}
+#phone{width:390px;max-width:100%;height:844px;background:var(--color-bg);border-radius:36px;border:1px solid #333;overflow:hidden;position:relative;container-type:inline-size;box-shadow:0 30px 80px rgba(0,0,0,.6);transition:width .25s var(--ease),height .25s var(--ease)}
+#phone.tablet{width:768px;height:1024px;border-radius:24px}
+#phone.desktop{width:1280px;height:860px;border-radius:12px}
+#screen{position:absolute;inset:0 0 83px;overflow-y:auto;padding:14px 16px 28px}
+#screen::-webkit-scrollbar{width:0}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:83px;background:color-mix(in srgb,var(--color-surface) 92%,transparent);backdrop-filter:blur(20px);border-top:.5px solid var(--color-border);display:flex;justify-content:space-around;padding-top:8px}
+.tabbar div{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--color-text-muted);width:64px}
+.tabbar div.on{color:var(--color-primary)}
+.tabbar svg{width:24px;height:24px}
+.inner{max-width:640px;margin:0 auto}
+
+/* ---------- peças comuns ---------- */
+.iconbtn{width:36px;height:36px;border-radius:50%;background:var(--color-surface);display:grid;place-items:center;color:var(--color-primary);flex:none}
+.iconbtn:hover{background:var(--color-surface-2)}
+.iconbtn svg{width:18px;height:18px}
+.iconbtn.sm{width:30px;height:30px;background:none;color:var(--color-text-muted)}
+.iconbtn.sm:hover{background:var(--color-surface-2)}
+.iconbtn.sm svg{width:16px;height:16px}
+.iconbtn:disabled{opacity:.25;pointer-events:none}
+.top{display:flex;align-items:center;gap:10px;margin:14px 0 4px}
+.name{flex:1;min-width:0;background:none;border:0;border-radius:10px;padding:6px 8px;margin-left:-8px;font:inherit;font-size:24px;font-weight:800;letter-spacing:-.02em;color:var(--color-text);outline:none}
+.name:hover{background:var(--color-surface)}
+.name:focus{background:var(--color-surface);box-shadow:inset 0 0 0 1.5px var(--color-primary-line)}
+.glyph{width:36px;height:36px;border-radius:10px;background:var(--color-primary-soft);color:var(--color-primary);display:grid;place-items:center;flex:none}
+.glyph svg{width:18px;height:18px}
+.sumline{font-size:13px;color:var(--color-text-muted);margin:0 0 4px}
+.sec{display:flex;align-items:center;justify-content:space-between;margin:20px 0 8px;min-height:32px}
+.sec h4{font-size:13px;font-weight:500;color:var(--color-text-muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:10px;padding:8px 14px;font-weight:600;font-size:14px}
+.btn svg{width:15px;height:15px}
+.btn.fill{background:var(--color-primary);color:var(--color-on-primary)}
+.btn.fill:hover{background:var(--color-primary-hover)}
+.btn.tint{background:var(--color-primary-soft);color:var(--color-primary)}
+.btn.tint:hover{background:var(--color-primary-line)}
+.btn.block{width:100%;padding:13px}
+.card{background:var(--color-surface);border-radius:14px}
+.small{font-size:12px}
+.dim{color:var(--color-text-muted)}
+.faint{color:var(--color-text-dim)}
+.grow{flex:1;min-width:0}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* linha de exercício (base) */
+.ex{display:flex;align-items:center;gap:12px;padding:10px 12px;min-height:66px;width:100%;text-align:left;cursor:pointer}
+.ex:hover{background:color-mix(in srgb,var(--color-surface) 70%,var(--color-surface-2))}
+.thumb{width:46px;height:46px;border-radius:9px;object-fit:cover;background:#fff;flex:none}
+.ex .nm{font-size:15px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ex .ln{font-size:13px;color:var(--color-text-muted);margin-top:2px}
+.ex .ln b{color:var(--color-text);font-weight:600}
+.chev{color:var(--color-text-dim);width:14px;flex:none}
+.chev svg{width:14px;height:14px}
+
+/* mapa do corpo (como está hoje: card grande + chips) */
+.bm{padding:14px}
+.bm h2{font-size:13px;font-weight:500;color:var(--color-text-muted);margin-bottom:10px}
+.bm svg{display:block;margin:0 auto;width:100%;max-width:300px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chips span{font-size:12px;padding:4px 10px;border-radius:99px;background:var(--color-surface-2);color:var(--color-text-muted)}
+
+/* configurações da rotina */
+.setg .r{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:.5px solid var(--color-border-soft);width:100%;text-align:left}
+.setg .r:first-child{border-top:0}
+.setg .r:hover{background:var(--color-surface-2)}
+.setg .ico{width:29px;height:29px;border-radius:7px;display:grid;place-items:center;color:#fff;flex:none}
+.setg .ico svg{width:16px;height:16px}
+.setg .t1{font-size:15px}
+.setg .t2{font-size:12px;color:var(--color-text-muted);margin-top:1px}
+.setg .val{font-size:14px;color:var(--color-text-muted)}
+.sw{width:46px;height:28px;border-radius:14px;background:var(--color-surface-3);position:relative;flex:none}
+.sw::after{content:'';position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s var(--ease)}
+.sw.on{background:var(--color-success)}
+.sw.on::after{transform:translateX(18px)}
+
+.empty{text-align:center;padding:36px 20px;color:var(--color-text-muted);font-size:14px}
+.empty .ico{width:52px;height:52px;border-radius:15px;background:var(--color-surface);display:grid;place-items:center;margin:0 auto 12px;color:var(--color-primary)}
+.empty .ico svg{width:24px;height:24px}
+
+/* ---------- sheet + toast ---------- */
+#sheet-root{position:absolute;inset:0;pointer-events:none;z-index:50}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.5);opacity:0;transition:opacity .22s}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--color-bg-el);border-radius:18px 18px 0 0;padding:8px 16px 28px;transform:translateY(100%);transition:transform .28s var(--ease);max-height:85%;overflow-y:auto}
+@container (min-width:700px){.sheet{left:50%;width:440px;margin-left:-220px;bottom:40px;border-radius:18px}}
+#sheet-root.open{pointer-events:auto}
+#sheet-root.open .scrim{opacity:1}
+#sheet-root.open .sheet{transform:none}
+.grab{width:36px;height:5px;border-radius:3px;background:var(--color-surface-3);margin:0 auto 12px}
+.sheet h3{font-size:17px;font-weight:700}
+.sheet .shsub{font-size:13px;color:var(--color-text-muted);margin:2px 0 14px}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;background:var(--color-surface);border-radius:12px;margin-bottom:6px;font-size:15px}
+.opt:hover{background:var(--color-surface-2)}
+.opt svg{width:18px;height:18px;color:var(--color-primary);flex:none}
+.opt.danger,.opt.danger svg{color:var(--color-danger)}
+.opt:disabled{opacity:.35;pointer-events:none}
+.step{display:flex;align-items:center;justify-content:space-between;background:var(--color-surface);border-radius:12px;padding:10px 14px;margin-bottom:6px}
+.step .l{font-size:15px}
+.step .c{display:flex;align-items:center;gap:10px}
+.step .c button{width:34px;height:34px;border-radius:50%;background:var(--color-surface-2);font-size:18px;color:var(--color-primary)}
+.step .c span{min-width:54px;text-align:center;font-size:17px;font-weight:600}
+#toast{position:absolute;left:50%;bottom:100px;transform:translate(-50%,20px);background:var(--color-surface-3);color:var(--color-text);padding:9px 16px;border-radius:20px;font-size:13px;opacity:0;transition:all .22s var(--ease);pointer-events:none;z-index:60;white-space:nowrap}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* =========================================================
+   A — lista limpa + modo Organizar
+   ========================================================= */
+.A-list{display:flex;flex-direction:column;gap:8px}
+.A-unit{background:var(--color-surface);border-radius:14px;overflow:hidden;position:relative}
+.A-unit.ss{box-shadow:inset 3px 0 0 var(--color-primary)}
+.A-ssh{display:flex;align-items:center;gap:6px;padding:10px 14px 0;font-size:12px;font-weight:700;color:var(--color-primary)}
+.A-ssh svg{width:13px;height:13px}
+.A-ssh span{font-weight:400;color:var(--color-text-muted)}
+.A-unit .ex + .ex{border-top:.5px solid var(--color-border-soft)}
+.A-ctl{display:flex;gap:2px;flex:none}
+.A-join{align-self:center;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--color-text-muted);padding:5px 12px;border-radius:99px;border:1px dashed var(--color-surface-3);margin:-2px 0}
+.A-join:hover{color:var(--color-primary);border-color:var(--color-primary-line);background:var(--color-primary-soft)}
+.A-join svg{width:13px;height:13px}
+.A-split{display:flex;justify-content:center;border-top:.5px solid var(--color-border-soft);padding:4px}
+.A-split button{font-size:12px;font-weight:600;color:var(--color-text-muted);padding:5px 10px;border-radius:8px;display:flex;gap:5px;align-items:center}
+.A-split button:hover{color:var(--color-danger)}
+.A-split svg{width:13px;height:13px}
+.A-hint{font-size:12px;color:var(--color-text-dim);margin:8px 2px 0}
+
+/* =========================================================
+   B — blocos A, B, C1/C2 + 🔗 entre exercícios
+   ========================================================= */
+.B-list{background:var(--color-surface);border-radius:14px;overflow:hidden}
+.B-row{display:flex;align-items:center;gap:10px;padding:10px 10px 10px 12px;min-height:66px;cursor:pointer;background:var(--color-surface)}
+.B-row:hover{background:color-mix(in srgb,var(--color-surface) 70%,var(--color-surface-2))}
+.B-row.dragging{opacity:.4}
+.B-row.over{box-shadow:inset 0 2px 0 var(--color-primary)}
+.B-badge{width:30px;flex:none;display:flex;flex-direction:column;align-items:center;align-self:stretch;justify-content:center;position:relative}
+.B-badge b{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:800;background:var(--color-surface-2);color:var(--color-text-muted);position:relative;z-index:1}
+.B-row.ss .B-badge b{background:var(--color-primary);color:var(--color-on-primary)}
+.B-row.ss-top .B-badge::after,.B-row.ss-mid .B-badge::after{content:'';position:absolute;left:50%;width:2px;margin-left:-1px;top:50%;bottom:-10px;background:var(--color-primary)}
+.B-row.ss-bot .B-badge::before,.B-row.ss-mid .B-badge::before{content:'';position:absolute;left:50%;width:2px;margin-left:-1px;bottom:50%;top:-10px;background:var(--color-primary)}
+.B-handle{width:26px;height:40px;display:grid;place-items:center;color:var(--color-text-dim);cursor:grab;flex:none}
+.B-handle svg{width:16px;height:16px}
+.B-link{height:0;position:relative;display:flex;justify-content:center;border-top:.5px solid var(--color-border-soft)}
+.B-link.on{border-top-color:transparent}
+.B-link button{position:absolute;top:-12px;height:24px;display:flex;align-items:center;gap:5px;padding:0 10px;border-radius:99px;font-size:11px;font-weight:700;background:var(--color-bg-el);color:var(--color-text-dim);border:1px solid var(--color-surface-3);z-index:2}
+.B-link button svg{width:12px;height:12px}
+.B-link button:hover{color:var(--color-primary);border-color:var(--color-primary-line)}
+.B-link.on button{background:var(--color-primary);color:#fff;border-color:var(--color-primary)}
+.B-link.on button:hover{background:var(--color-danger);border-color:var(--color-danger)}
+.B-legend{font-size:12px;color:var(--color-text-dim);margin:8px 2px 0;display:flex;gap:6px;align-items:center}
+.B-legend svg{width:13px;height:13px}
+
+/* =========================================================
+   C — menu ⋮ por exercício + colchete de superset
+   ========================================================= */
+.C-list{display:flex;flex-direction:column;gap:8px}
+.C-unit{background:var(--color-surface);border-radius:14px;overflow:hidden}
+.C-unit .ex + .ex{border-top:.5px solid var(--color-border-soft)}
+.C-unit.ss{display:grid;grid-template-columns:22px 1fr}
+.C-br{position:relative;display:flex;align-items:center;justify-content:center}
+.C-br::before{content:'';position:absolute;top:22px;bottom:22px;left:12px;width:8px;border:2px solid var(--color-primary);border-right:0;border-radius:6px 0 0 6px}
+.C-unit.ss .ex{padding-left:6px}
+.C-tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--color-primary);background:var(--color-primary-soft);border-radius:6px;padding:2px 7px;margin:10px 0 0 28px}
+.C-tag svg{width:11px;height:11px}
+
+/* C2 — ícone de superset entre os exercícios */
+.D-join{display:flex;justify-content:center;height:14px;align-items:center;margin:-4px 0}
+.D-join button,.D-in button{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--color-bg);color:var(--color-text-dim);border:1px solid var(--color-surface-3);position:relative;z-index:2}
+.D-join button:hover{color:var(--color-primary);border-color:var(--color-primary-line);background:var(--color-primary-soft)}
+.D-join svg,.D-in svg{width:14px;height:14px}
+.D-in{height:0;position:relative;display:flex;justify-content:flex-start;padding-left:14px}
+.D-in button{position:absolute;top:-14px;background:var(--color-primary);color:#fff;border-color:var(--color-primary)}
+.D-in button:hover{background:var(--color-danger);border-color:var(--color-danger)}
+.C-unit.ss .ex + .D-in + .ex{border-top:.5px solid var(--color-border-soft)}
+.D-list{display:flex;flex-direction:column;gap:4px}
+
+/* anotação */
+body.annot #screen *:hover{outline:1px dashed #0af}
+#annot-tip{position:fixed;z-index:10000;background:#000;color:#0cf;font:11px ui-monospace,monospace;padding:4px 7px;border-radius:5px;pointer-events:none;display:none;white-space:pre}
+</style>
+</head>
+<body>
+
+<div id="variant-nav">
+  <button class="variant-tab active" data-v="a">A: Lista limpa + Organizar</button>
+  <button class="variant-tab" data-v="b">B: Blocos A · B · C1/C2</button>
+  <button class="variant-tab" data-v="c">C: Menu ⋮ + colchete</button>
+  <button class="variant-tab" data-v="d">C2: C + ícone de superset ★ Aprovada</button>
+  <span class="sep"></span>
+  <span class="lbl">Estado:</span>
+  <button class="state-btn active" data-s="montada">Montada</button>
+  <button class="state-btn" data-s="longa">Longa</button>
+  <button class="state-btn" data-s="vazia">Vazia</button>
+</div>
+
+<main id="stage">
+  <div id="phone">
+    <div id="screen"></div>
+    <nav class="tabbar">
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6h-6v6H4a1 1 0 01-1-1z"/></svg>Início</div>
+      <div class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Plano</div>
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12"/></svg>Começar</div>
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Estatísticas</div>
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Exercícios</div>
+    </nav>
+    <div id="sheet-root"><div class="scrim"></div><div class="sheet"></div></div>
+    <div id="toast"></div>
+  </div>
+</main>
+<div id="annot-tip"></div>
+
+<div id="sketch-tools" style="position:fixed;bottom:12px;right:12px;z-index:9999;font-family:system-ui;font-size:12px;background:rgba(0,0,0,0.8);color:white;padding:8px 12px;border-radius:8px;opacity:0.45;transition:opacity 0.2s;display:flex;gap:6px;align-items:center" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.45'">
+  <select id="theme-switcher" style="background:#222;color:#fff;border:1px solid #444;border-radius:5px;padding:3px">
+    <option value="default">Escuro</option>
+    <option value="claro">Claro</option>
+  </select>
+  <button data-vp="" style="background:#333;color:#fff;border-radius:5px;padding:3px 7px">Celular</button>
+  <button data-vp="tablet" style="background:#333;color:#fff;border-radius:5px;padding:3px 7px">Tablet</button>
+  <button data-vp="desktop" style="background:#333;color:#fff;border-radius:5px;padding:3px 7px">Desktop</button>
+  <label style="display:flex;gap:4px;align-items:center"><input type="checkbox" id="annot">Anotar</label>
+</div>
+
+<script>
+/* ---------------- ícones ---------------- */
+const I = {
+  back:'<path d="M15 5l-7 7 7 7"/>', chev:'<path d="M9 5l7 7-7 7"/>', up:'<path d="M6 15l6-6 6 6"/>', down:'<path d="M6 9l6 6 6-6"/>',
+  more:'<circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/>',
+  link:'<path d="M10 14a4 4 0 005.66 0l3-3a4 4 0 00-5.66-5.66l-1 1M14 10a4 4 0 00-5.66 0l-3 3a4 4 0 005.66 5.66l1-1"/>',
+  unlink:'<path d="M10 14a4 4 0 005.66 0l3-3a4 4 0 00-5.66-5.66l-1 1M14 10a4 4 0 00-5.66 0l-3 3a4 4 0 005.66 5.66l1-1M4 4l16 16"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', x:'<path d="M6 6l12 12M18 6L6 18"/>', grip:'<circle cx="9" cy="6" r="1.3" fill="currentColor"/><circle cx="15" cy="6" r="1.3" fill="currentColor"/><circle cx="9" cy="12" r="1.3" fill="currentColor"/><circle cx="15" cy="12" r="1.3" fill="currentColor"/><circle cx="9" cy="18" r="1.3" fill="currentColor"/><circle cx="15" cy="18" r="1.3" fill="currentColor"/>',
+  barbell:'<path d="M6 7v10M18 7v10M3 9.5v5M21 9.5v5M6 12h12"/>', chart:'<path d="M4 19l5-6 4 3 7-9"/>', pause:'<path d="M9 6v12M15 6v12"/>',
+  edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>', copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 00-1-1H5a1 1 0 00-1 1v10a1 1 0 001 1h3"/>',
+  trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>', sort:'<path d="M7 4v16M4 7l3-3 3 3M17 20V4M14 17l3 3 3-3"/>', check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>', dumbbell:'<path d="M6 7v10M18 7v10M3 9.5v5M21 9.5v5M6 12h12"/>',
+  play:'<path d="M8 5v14l11-7z" fill="currentColor"/>'
+}
+const ic = (n, sw=1.9) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${I[n]}</svg>`
+const IMG = 'https://cdn.jsdelivr.net/gh/hasaneyldrm/exercises-dataset@7455efae41b330c265e7cd4b78dfa848e7ce5ebd/images/'
+
+/* ---------------- dados reais (Push Day do plano inicial) ---------------- */
+const LIB = {
+  '0025':['Supino reto com barra','0025-EIeI8Vf.jpg','Peito'], '0047':['Supino inclinado com barra','0047-3TZduzM.jpg','Peito'],
+  '0426':['Desenvolvimento com halteres em pé','0426-A6wtbuL.jpg','Ombros'], '0334':['Elevação lateral com halteres','0334-DsgkuIt.jpg','Ombros'],
+  '0241':['Tríceps na polia (barra V)','0241-gAwDzB3.jpg','Tríceps'], '0251':['Mergulho nas paralelas','0251-9WTm7dq.jpg','Peito'],
+  '2330':['Barra fixa','2330-LEprlgG.jpg','Costas'], '0027':['Remada curvada com barra','0027-eZyBC3j.jpg','Costas'],
+  '0313':['Rosca direta com barra','0313-slDvUAU.jpg','Bíceps'], '0043':['Agachamento livre','0043-qXTaZnJ.jpg','Quadríceps'],
+  '0739':['Leg press 45°','0739-10Z2DXU.jpg','Quadríceps'], '0586':['Mesa flexora','0586-17lJ1kr.jpg','Posteriores']
+}
+const e = (id, sets, reps, w, sg) => ({ id, sets, reps, w, ...(sg ? { sg } : {}) })
+const STATES = {
+  montada: () => [e('0025',4,8,60), e('0047',3,10,45), e('0426',3,10,16), e('0334',3,12,8,'s1'), e('0241',3,12,25,'s1'), e('0251',3,10,0)],
+  longa: () => [e('0025',4,8,60), e('0047',3,10,45,'s1'), e('0027',3,10,50,'s1'), e('0426',3,10,16), e('0334',3,12,8,'s2'), e('0241',3,12,25,'s2'), e('0313',3,10,25,'s2'), e('0251',3,10,0), e('2330',3,8,0), e('0043',4,8,80)],
+  vazia: () => []
+}
+let R = { name:'Push Day', prog:'Progressão linear', excl:false, ex:STATES.montada() }
+let V = 'a', organizing = false, sgN = 10
+
+/* ---------------- lógica ---------------- */
+function units() {   // exercícios consecutivos com o mesmo sg formam um bloco
+  const out = []
+  R.ex.forEach((x, i) => { const last = out.at(-1)
+    if (last && x.sg && R.ex[i-1].sg === x.sg) last.push(i); else out.push([i]) })
+  return out
+}
+function cleanup() { R.ex.forEach((x, i) => { if (x.sg && !(R.ex[i-1]?.sg === x.sg || R.ex[i+1]?.sg === x.sg)) delete x.sg }) }
+const line = x => `<b>${x.sets} × ${x.reps}</b>${x.w ? ` · ${x.w} kg` : ' · peso corporal'}`
+const totals = () => { const sets = R.ex.reduce((n, x) => n + x.sets, 0); return { ex:R.ex.length, sets, min: sets ? Math.round((sets*2.5 + R.ex.length)/5)*5 : 0 } }
+// liga i ao anterior (i-1); se o anterior já está num superset, entra nele
+function link(i) {
+  const a = R.ex[i-1], b = R.ex[i]
+  const id = a.sg || b.sg || 's' + (++sgN)
+  a.sg = id; b.sg = id; render(); toast('Superset criado: feitos em sequência, sem descanso entre eles')
+}
+function unlink(i) {   // separa i do anterior
+  const id = R.ex[i].sg, tail = 's' + (++sgN)
+  for (let k = i; k < R.ex.length && R.ex[k].sg === id; k++) R.ex[k].sg = tail
+  cleanup(); render(); toast('Superset desfeito')
+}
+function moveUnit(ui, d) {
+  const us = units(), to = ui + d; if (to < 0 || to >= us.length) return
+  const blocks = us.map(u => u.map(i => R.ex[i]))
+  const [m] = blocks.splice(ui, 1); blocks.splice(to, 0, m)
+  R.ex = blocks.flat(); render()
+}
+function moveEx(i, d) {   // move um exercício sozinho (sai do superset)
+  const to = i + d; if (to < 0 || to >= R.ex.length) return
+  const [m] = R.ex.splice(i, 1); delete m.sg; R.ex.splice(to, 0, m); cleanup(); render()
+}
+function removeEx(i) { const n = LIB[R.ex[i].id][0]; R.ex.splice(i, 1); cleanup(); closeSheet(); render(); toast(`“${n}” removido`) }
+
+/* ---------------- sheet / toast ---------------- */
+const root = document.getElementById('sheet-root'), sheetEl = root.querySelector('.sheet')
+function openSheet(html) { sheetEl.innerHTML = '<div class="grab"></div>' + html; root.classList.add('open') }
+function closeSheet() { root.classList.remove('open') }
+root.querySelector('.scrim').onclick = closeSheet
+let tt
+function toast(m) { const t = document.getElementById('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 1900) }
+
+function editSheet(i) {
+  const x = R.ex[i], L = LIB[x.id]
+  const row = (k, lab, step, unit='') => `<div class="step"><span class="l">${lab}</span><span class="c">
+    <button onclick="R.ex[${i}].${k}=Math.max(0,R.ex[${i}].${k}-${step});editSheet(${i});render()">−</button><span class="mono">${x[k]}${unit}</span>
+    <button onclick="R.ex[${i}].${k}+=${step};editSheet(${i});render()">+</button></span></div>`
+  openSheet(`<div style="display:flex;gap:12px;align-items:center;margin-bottom:14px"><img class="thumb" src="${IMG+L[1]}" alt=""><div><h3>${L[0]}</h3><div class="small dim">${L[2]}</div></div></div>
+    ${row('sets','Séries',1)}${row('reps','Repetições',1)}${row('w','Carga',2.5,' kg')}
+    <button class="btn fill block" style="margin-top:10px" onclick="closeSheet()">Pronto</button>`)
+}
+function exMenu(i) {
+  const x = R.ex[i], inSS = !!x.sg, prevLinked = i > 0 && x.sg && R.ex[i-1].sg === x.sg
+  openSheet(`<h3>${LIB[x.id][0]}</h3><div class="shsub mono">${x.sets} × ${x.reps}${x.w ? ' · ' + x.w + ' kg' : ''}</div>
+    <button class="opt" onclick="editSheet(${i})">${ic('edit')} Editar séries e carga</button>
+    <button class="opt" ${i===0?'disabled':''} onclick="moveEx(${i},-1);closeSheet()">${ic('up')} Mover para cima</button>
+    <button class="opt" ${i===R.ex.length-1?'disabled':''} onclick="moveEx(${i},1);closeSheet()">${ic('down')} Mover para baixo</button>
+    ${prevLinked ? `<button class="opt" onclick="unlink(${i});closeSheet()">${ic('unlink')} Separar do exercício de cima</button>`
+      : `<button class="opt" ${i===0?'disabled':''} onclick="link(${i});closeSheet()">${ic('link')} Superset com o exercício de cima</button>`}
+    <button class="opt danger" onclick="removeEx(${i})">${ic('trash')} Remover da rotina</button>`)
+}
+function routineMenu() {
+  openSheet(`<h3>${R.name}</h3><div class="shsub">Opções da rotina</div>
+    <button class="opt" onclick="closeSheet();toast('Rotina copiada — abriria a cópia')">${ic('copy')} Copiar rotina</button>
+    <button class="opt danger" onclick="closeSheet();toast('Pediria confirmação para excluir')">${ic('trash')} Excluir rotina</button>`)
+}
+function addSheet() {
+  const have = new Set(R.ex.map(x => x.id))
+  openSheet(`<h3>Adicionar exercício</h3><div class="shsub">No app abre a biblioteca completa; aqui, alguns atalhos</div>
+    ${Object.entries(LIB).filter(([id]) => !have.has(id)).slice(0,6).map(([id, L]) => `<button class="opt" onclick="R.ex.push(e('${id}',3,10,20));closeSheet();render();toast('“${L[0]}” adicionado')">
+      <img class="thumb" style="width:38px;height:38px" src="${IMG+L[1]}" alt=""><span class="grow">${L[0]}<br><span class="small dim">${L[2]}</span></span></button>`).join('')}`)
+}
+
+/* ---------------- partes comuns a todas as variantes ---------------- */
+function head() {
+  const t = totals()
+  return `<div class="top"><button class="iconbtn" onclick="toast('Voltaria para o Plano')" aria-label="Voltar">${ic('back')}</button>
+    <input class="name" value="${R.name}" oninput="R.name=this.value">
+    <button class="glyph" onclick="toast('Escolher ícone')" aria-label="Ícone">${ic('barbell')}</button>
+    <button class="iconbtn" onclick="routineMenu()" aria-label="Mais">${ic('more')}</button></div>
+    <div class="sumline">${t.ex ? `${t.ex} exercícios · <span class="mono">${t.sets}</span> séries · ~${t.min} min` : 'Nenhum exercício ainda'}</div>`
+}
+function bodyMap() {
+  if (!R.ex.length) return ''
+  const hit = [...new Set(R.ex.map(x => LIB[x.id][2]))]
+  const on = m => hit.includes(m) ? 'var(--color-primary)' : 'var(--color-surface-3)'
+  const fig = (x, back) => `<g transform="translate(${x},0)" fill="var(--color-surface-2)">
+    <circle cx="50" cy="18" r="12"/><rect x="30" y="34" width="40" height="62" rx="14"/>
+    <rect x="14" y="38" width="12" height="54" rx="6"/><rect x="74" y="38" width="12" height="54" rx="6"/>
+    <rect x="32" y="98" width="15" height="70" rx="7"/><rect x="53" y="98" width="15" height="70" rx="7"/>
+    ${back ? `<rect x="33" y="40" width="34" height="30" rx="8" fill="${on('Costas')}"/><rect x="74" y="42" width="12" height="20" rx="6" fill="${on('Tríceps')}"/><rect x="14" y="42" width="12" height="20" rx="6" fill="${on('Tríceps')}"/><rect x="32" y="118" width="15" height="30" rx="7" fill="${on('Posteriores')}"/><rect x="53" y="118" width="15" height="30" rx="7" fill="${on('Posteriores')}"/>`
+      : `<rect x="33" y="40" width="34" height="18" rx="7" fill="${on('Peito')}"/><circle cx="29" cy="40" r="7" fill="${on('Ombros')}"/><circle cx="71" cy="40" r="7" fill="${on('Ombros')}"/><rect x="14" y="48" width="12" height="18" rx="6" fill="${on('Bíceps')}"/><rect x="74" y="48" width="12" height="18" rx="6" fill="${on('Bíceps')}"/><rect x="32" y="104" width="15" height="34" rx="7" fill="${on('Quadríceps')}"/><rect x="53" y="104" width="15" height="34" rx="7" fill="${on('Quadríceps')}"/>`}
+  </g>`
+  return `<div class="card bm" style="margin-top:12px"><h2>O que esta sessão trabalha</h2>
+    <svg viewBox="0 0 240 172">${fig(10,false)}${fig(130,true)}</svg>
+    <div class="chips">${hit.map(m => `<span>${m}</span>`).join('')}</div></div>`
+}
+function settings() {
+  return `<div class="sec"><h4>Configurações da rotina</h4></div>
+  <div class="card setg">
+    <button class="r" onclick="toast('Abriria as regras de progressão')"><span class="ico" style="background:var(--color-primary)">${ic('chart')}</span>
+      <span class="grow"><div class="t1">Progressão</div><div class="t2">Vale para os exercícios sem regra própria</div></span><span class="val">Linear</span><span class="chev">${ic('chev')}</span></button>
+    <button class="r" onclick="R.excl=!R.excl;render()"><span class="ico" style="background:#ff9f0a">${ic('pause')}</span>
+      <span class="grow"><div class="t1">Excluir da progressão automática</div><div class="t2">Para deloads planejados</div></span><span class="sw ${R.excl?'on':''}"></span></button>
+  </div>`
+}
+const addBtn = () => `<button class="btn fill block" style="margin-top:12px" onclick="addSheet()">${ic('plus')} Adicionar exercício</button>`
+const empty = () => `<div class="card empty"><div class="ico">${ic('dumbbell')}</div>Nenhum exercício ainda — adicione o primeiro.</div>`
+const thumb = x => `<img class="thumb" loading="lazy" src="${IMG + LIB[x.id][1]}" alt="">`
+const exRow = (i, right = `<span class="chev">${ic('chev')}</span>`, click = `editSheet(${i})`) => { const x = R.ex[i]
+  return `<div class="ex" onclick="${click}">${thumb(x)}<div class="grow"><div class="nm">${LIB[x.id][0]}</div><div class="ln">${line(x)}</div></div>${right}</div>` }
+
+/* ================= A — lista limpa + Organizar ================= */
+function renderA() {
+  const us = units()
+  const list = us.map((u, ui) => {
+    const ss = u.length > 1
+    const ctl = organizing ? `<div class="A-ctl">
+        <button class="iconbtn sm" ${ui===0?'disabled':''} onclick="event.stopPropagation();moveUnit(${ui},-1)" aria-label="Subir">${ic('up')}</button>
+        <button class="iconbtn sm" ${ui===us.length-1?'disabled':''} onclick="event.stopPropagation();moveUnit(${ui},1)" aria-label="Descer">${ic('down')}</button></div>` : ''
+    const rows = u.map((i, k) => {
+      const right = organizing ? `<button class="iconbtn sm" onclick="event.stopPropagation();removeEx(${i})" aria-label="Remover">${ic('x')}</button>${!ss ? ctl : ''}` : `<span class="chev">${ic('chev')}</span>`
+      const split = organizing && k > 0 ? `<div class="A-split"><button onclick="unlink(${i})">${ic('unlink')} Separar</button></div>` : ''
+      return split + exRow(i, right)
+    }).join('')
+    const unit = `<div class="A-unit ${ss?'ss':''}">${ss ? `<div class="A-ssh">${ic('link')} Superset <span>· em sequência, sem descanso entre eles</span>${organizing ? `<span style="flex:1"></span>${ctl}` : ''}</div>` : ''}${rows}</div>`
+    const join = organizing && ui > 0 ? `<button class="A-join" onclick="link(${u[0]})">${ic('link')} Juntar em superset</button>` : ''
+    return join + unit
+  }).join('')
+  return head() + `<div class="sec"><h4>Exercícios</h4>${R.ex.length > 1 ? `<button class="btn ${organizing?'fill':'tint'}" onclick="organizing=!organizing;render()">${organizing ? ic('check') + ' Concluído' : ic('sort') + ' Organizar'}</button>` : ''}</div>
+    ${R.ex.length ? `<div class="A-list">${list}</div>${organizing ? '<div class="A-hint">Use as setas para mudar a ordem. “Juntar” faz os dois exercícios em sequência, sem descanso entre eles.</div>' : ''}` : empty()}
+    ${organizing ? '' : addBtn() + bodyMap() + settings()}`
+}
+
+/* ================= B — blocos A · B · C1/C2 ================= */
+let dragFrom = null
+function renderB() {
+  const us = units(), label = {}
+  us.forEach((u, ui) => { const L = String.fromCharCode(65 + ui); u.forEach((i, k) => label[i] = u.length > 1 ? L + (k + 1) : L) })
+  const pos = i => { const u = us.find(u => u.includes(i)); if (u.length < 2) return ''; const k = u.indexOf(i); return 'ss ' + (k === 0 ? 'ss-top' : k === u.length - 1 ? 'ss-bot' : 'ss-mid') }
+  const rows = R.ex.map((x, i) => {
+    const linked = i > 0 && x.sg && R.ex[i-1].sg === x.sg
+    const between = i > 0 ? `<div class="B-link ${linked?'on':''}"><button onclick="${linked ? `unlink(${i})` : `link(${i})`}" title="${linked ? 'Separar' : 'Fazer superset'}">${ic(linked ? 'link' : 'link')}${linked ? 'superset' : ''}</button></div>` : ''
+    return between + `<div class="B-row ${pos(i)}" draggable="true" data-i="${i}" onclick="editSheet(${i})">
+      <div class="B-badge"><b>${label[i]}</b></div>${thumb(x)}
+      <div class="grow"><div class="nm" style="font-size:15px">${LIB[x.id][0]}</div><div class="ln" style="font-size:13px;color:var(--color-text-muted);margin-top:2px">${line(x)}</div></div>
+      <span class="B-handle" title="Arraste para reordenar" onclick="event.stopPropagation()">${ic('grip')}</span></div>`
+  }).join('')
+  return head() + `<div class="sec"><h4>Exercícios</h4><button class="btn tint" onclick="addSheet()">${ic('plus')} Adicionar</button></div>
+    ${R.ex.length ? `<div class="B-list">${rows}</div>
+      <div class="B-legend">${ic('link')} Toque na corrente entre dois exercícios para fazer um superset (C1, C2 = feitos em sequência). Arraste ⠿ para reordenar.</div>` : empty()}
+    ${bodyMap()}${settings()}`
+}
+function wireDrag() {
+  document.querySelectorAll('.B-row').forEach(el => {
+    el.ondragstart = ev => { dragFrom = +el.dataset.i; el.classList.add('dragging'); ev.dataTransfer.effectAllowed = 'move' }
+    el.ondragend = () => el.classList.remove('dragging')
+    el.ondragover = ev => { ev.preventDefault(); el.classList.add('over') }
+    el.ondragleave = () => el.classList.remove('over')
+    el.ondrop = ev => { ev.preventDefault(); const to = +el.dataset.i; if (dragFrom === null || to === dragFrom) return render()
+      const [m] = R.ex.splice(dragFrom, 1); delete m.sg; R.ex.splice(to, 0, m); cleanup(); dragFrom = null; render(); toast('Ordem alterada') }
+  })
+}
+
+/* ================= C — menu ⋮ + colchete ================= */
+function renderC() {
+  const list = units().map(u => {
+    const more = i => `<button class="iconbtn sm" onclick="event.stopPropagation();exMenu(${i})" aria-label="Opções">${ic('more')}</button>`
+    if (u.length < 2) return `<div class="C-unit">${exRow(u[0], more(u[0]))}</div>`
+    return `<div><div class="C-tag">${ic('link')} Superset · sem descanso entre eles</div>
+      <div class="C-unit ss" style="margin-top:6px"><div class="C-br"></div><div>${u.map(i => exRow(i, more(i))).join('')}</div></div></div>`
+  }).join('')
+  return head() + `<div class="sec"><h4>Exercícios</h4></div>
+    ${R.ex.length ? `<div class="C-list">${list}</div><div class="A-hint">Toque em ⋮ para mover, fazer superset com o de cima ou remover.</div>` : empty()}
+    ${addBtn()}${bodyMap()}${settings()}`
+}
+
+/* ================= C2 — C + ícone de superset ================= */
+function renderD() {
+  const us = units()
+  const more = i => `<button class="iconbtn sm" onclick="event.stopPropagation();exMenu(${i})" aria-label="Opções">${ic('more')}</button>`
+  const list = us.map((u, ui) => {
+    const join = ui > 0 ? `<div class="D-join"><button onclick="link(${u[0]})" title="Fazer superset com o exercício de cima" aria-label="Fazer superset">${ic('link')}</button></div>` : ''
+    if (u.length < 2) return join + `<div class="C-unit">${exRow(u[0], more(u[0]))}</div>`
+    const rows = u.map((i, k) => (k > 0 ? `<div class="D-in"><button onclick="unlink(${i})" title="Separar do exercício de cima" aria-label="Separar">${ic('link')}</button></div>` : '') + exRow(i, more(i))).join('')
+    return join + `<div><div class="C-tag" style="margin-top:4px">${ic('link')} Superset · sem descanso entre eles</div>
+      <div class="C-unit ss" style="margin-top:6px"><div class="C-br"></div><div>${rows}</div></div></div>`
+  }).join('')
+  return head() + `<div class="sec"><h4>Exercícios</h4></div>
+    ${R.ex.length ? `<div class="D-list">${list}</div><div class="A-hint" style="display:flex;gap:6px;align-items:flex-start"><span style="width:14px;flex:none;color:var(--color-primary)">${ic('link')}</span>Toque na corrente entre dois exercícios para fazer um superset; na corrente laranja, para separar. ⋮ para mover ou remover.</div>` : empty()}
+    ${addBtn()}${bodyMap()}${settings()}`
+}
+
+/* ---------------- render + controles ---------------- */
+const screen = document.getElementById('screen')
+function render() {
+  const top = screen.scrollTop
+  screen.innerHTML = '<div class="inner">' + ({ a:renderA, b:renderB, c:renderC, d:renderD })[V]() + '</div>'
+  screen.scrollTop = top
+  if (V === 'b') wireDrag()
+}
+function setState(s) { R.ex = STATES[s](); organizing = false
+  document.querySelectorAll('.state-btn').forEach(b => b.classList.toggle('active', b.dataset.s === s)); render() }
+function showVariant(v) { V = v; organizing = false; closeSheet(); screen.scrollTop = 0
+  document.querySelectorAll('.variant-tab').forEach(t => t.classList.toggle('active', t.dataset.v === v)); render() }
+document.querySelectorAll('.variant-tab').forEach(t => t.onclick = () => showVariant(t.dataset.v))
+document.querySelectorAll('.state-btn').forEach(b => b.onclick = () => setState(b.dataset.s))
+document.querySelectorAll('[data-vp]').forEach(b => b.onclick = () => { document.getElementById('phone').className = b.dataset.vp })
+document.getElementById('theme-switcher').onchange = ev => { document.querySelector('link[href*=themes]').href = '../themes/' + ev.target.value + '.css' }
+const tip = document.getElementById('annot-tip')
+document.getElementById('annot').onchange = ev => { document.body.classList.toggle('annot', ev.target.checked); if (!ev.target.checked) tip.style.display = 'none' }
+screen.addEventListener('mousemove', ev => {
+  if (!document.body.classList.contains('annot')) return
+  const cs = getComputedStyle(ev.target)
+  tip.textContent = `${ev.target.tagName.toLowerCase()}.${[...ev.target.classList].join('.')}\nfont ${cs.fontSize} / ${cs.fontWeight}\ncolor ${cs.color}\nbg ${cs.backgroundColor}`
+  tip.style.display = 'block'; tip.style.left = ev.clientX + 14 + 'px'; tip.style.top = ev.clientY + 14 + 'px'
+})
+render()
+</script>
+</body>
+</html>
