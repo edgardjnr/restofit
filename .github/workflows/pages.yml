@@ -32,6 +32,8 @@ env:
 
 jobs:
   build:
+    # The demo site is upstream's; a fork without Pages enabled fails at configure-pages.
+    if: github.repository == 'DuarteSantos8/openGym'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
