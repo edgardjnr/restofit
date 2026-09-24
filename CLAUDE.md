@@ -9,6 +9,83 @@ openGym is a self-hosted gym & body-weight tracker PWA. Two containers (`api` + 
 installable as a home-screen app, optional Capacitor shells for standalone Android/iOS builds.
 License: AGPL-3.0-or-later.
 
+## RestoFit (este fork) — leia antes de tudo
+
+Este repositório é o **RestoFit**, fork do openGym com nome, ícone, cor `#C2410C` e pt-BR como
+idioma padrão. O resto deste arquivo descreve o openGym original e continua valendo.
+
+### Remotes e branches
+- `origin` = `https://github.com/edgardjnr/restofit` (o nosso). `upstream` = `DuarteSantos8/openGym`.
+- Commits em português, sem acento no título (siga o `git log`). Trabalhe num branch e faça
+  merge `--ff-only` no `main`. Push no `main` só quando o usuário pedir.
+
+### Produção (https://restofit.restaurantepro.com.br)
+- Push no `main` do GitHub dispara o CI: **Tests** e **Publish Docker images**
+  (`ghcr.io/edgardjnr/opengym-{web,api}:edge`). O job **Deploy demo to GitHub Pages** falha desde
+  antes do fork e não afeta a produção. O mirror para o GitLab é ignorado (skipped).
+- **O servidor não se atualiza sozinho.** Depois do push, o usuário roda no servidor, a partir
+  do código em `~/restofit`:
+  ```bash
+  cd ~/restofit && git pull
+  docker build -t restofit-api:latest --target default ./api   # só se api/ mudou
+  docker build -t restofit-web:latest -f web/Dockerfile .      # frontend (web/, frontend/)
+  ```
+  **Build sozinho não publica nada.** O servidor roda **Docker Swarm** (gerenciado pelo Portainer):
+  stack `opengym`, serviços `opengym_web` (imagem `restofit-web:latest`) e `opengym_api`
+  (`restofit-api:latest`), atrás do Traefik e de um túnel Cloudflare. Com a mesma tag, o Swarm não
+  troca o container sozinho. Force a atualização de cada serviço reconstruído:
+  ```bash
+  docker service update --force --no-resolve-image --image restofit-web:latest opengym_web
+  docker service update --force --no-resolve-image --image restofit-api:latest opengym_api  # se a api mudou
+  docker service ps opengym_web --no-trunc | head -3                                        # nova tarefa Running
+  ```
+  O `--no-resolve-image` faz o Swarm usar a imagem local (ela não existe em registry nenhum).
+  O mesmo servidor roda outras stacks (n8n, escuta, portainer, traefik, minio, waha, postgres):
+  mexa só nos serviços `opengym_*`.
+  - **Nunca rode `docker compose pull`** com o `docker-compose.yml` do repositório. Ele aponta
+    para as imagens do upstream (`ghcr.io/duartesantos8/opengym-*`) e troca o RestoFit pelo openGym.
+  - **Não clone em pasta nova** no servidor: dados e `.env` ficam na instalação atual.
+- Conferir depois do deploy, sem cache:
+  `curl -sI "https://restofit.restaurantepro.com.br/?v=$RANDOM" | grep -i last-modified` deve
+  mostrar a hora do novo build, e `https://restofit.restaurantepro.com.br/atlas/0001.mp4` deve
+  responder 200 `video/mp4` (enquanto o container é o antigo, responde 302).
+
+### Mídia dos exercícios
+- Ordem no app (`components/Media.jsx`): **vídeo do ATLAS-01** (se o id estiver em
+  `ATLAS_VIDEO_IDS`) → **GIF do dataset** → imagem parada → ícone.
+- Miniatura (`Thumb`): capa WebP do vídeo quando existir; senão a imagem do dataset.
+- Vídeos próprios: `frontend/public/atlas/<id>.mp4` + capa `frontend/public/atlas/<id>.webp`
+  (quadro de pico). Vão dentro do build (web e mobile). Lista em `ATLAS_VIDEO_IDS`
+  (`lib/exercises.js`); o teste em `lib/exercises.test.js` exige que todo id tenha `.mp4` e `.webp`.
+  Hoje: `0001` (3/4 sit-up) e `1714` (assisted prone rectus femoris stretch).
+- O service worker não intercepta `.mp4`, porque vídeo usa requisição parcial (206).
+- GIFs e imagens do dataset são © Gym visual (`NOTICE.md`): podem ser lidos para descrever um
+  exercício, mas nunca enviados a serviços de geração nem redistribuídos.
+
+### Rodar localmente
+- `cd frontend && npm run dev` (porta 5173; API em :3000). Sem `MEDIA_TARGET`, o dev server busca
+  `/img` e `/gif` no jsDelivr (mesmo commit do dataset do `build:mobile`). Com um servidor de mídia
+  local, defina `MEDIA_TARGET=http://127.0.0.1:8888`.
+- Existe um `C:\Users\Edgardjr\postcss.config.mjs` solto (pede Tailwind). O `vite.config.js` tem
+  `css: { postcss: {} }` para não herdá-lo; não remova essa linha.
+- `npm test` roda os ~1590 testes do frontend; `npm run build` precisa passar antes de publicar.
+
+### Vídeos de exercício com o ATLAS-01 (Higgsfield)
+- Receita completa na skill do projeto **`atlas01-video`** (`.claude/skills/atlas01-video/`,
+  fora do git por causa do `.gitignore`): `SKILL.md`, `prompt-template.md`, `muscle-map.md`,
+  `muscle-refs.md`, `atlas01-system-prompt.md` e os scripts `ref_gif.py`, `frames.py`, `poster.py`.
+  Use a skill sempre que o pedido for um vídeo de exercício.
+- Decisões do usuário: `seedance_2_5`, **480p**, **4 s**, 1 repetição com loop, 16:9, sem áudio;
+  ler o GIF do app antes (o GIF manda sobre o texto `st`); vermelho só no músculo foco, só a parte
+  visível, acompanhando a contração; fluxo em duas etapas: imagem-mapa do músculo
+  (`gpt_image_2_5`, medium) e depois vídeo com 3 referências.
+- Referências fixas: `assets/imagem referencia/ATLAS-01.png` (personagem) e `ATLAS-01-RED.png`
+  (exemplo de cor: o bíceps está vermelho porque era o foco daquele exercício). Imagens-mapa em
+  `assets/imagem referencia/musculos/`.
+- Custo: ~12 créditos por vídeo + ~0,5 por imagem-mapa. Não refaça vídeos sem perguntar.
+- Para publicar um vídeo aprovado: siga o passo 8 da skill (mp4 + capa `poster.py` +
+  `ATLAS_VIDEO_IDS` + `npm test`), depois o fluxo de produção acima.
+
 ## Project layout
 
 ```

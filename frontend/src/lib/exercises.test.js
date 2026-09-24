@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { existsSync } from 'node:fs'
-import { matchExercise, normalizeStr, videoSrc, posterSrc, ATLAS_VIDEO_IDS, EXIDX } from './exercises.js'
+import { matchExercise, normalizeStr, videoSrc, posterSrc, ATLAS_VIDEO_IDS, ATLAS_POSTER_IDS, EXIDX } from './exercises.js'
 import { _setLangState } from './i18n-core.js'
 
 describe('normalizeStr', () => {
@@ -133,19 +133,23 @@ describe('videoSrc', () => {
     expect(videoSrc(undefined)).toBe(null)
   })
 
-  it('pairs every video with its webp poster, and nothing else gets one', () => {
+  it('gives a webp poster to every video and to poster-only exercises, and nothing else', () => {
     expect(posterSrc({ id: '0001' })).toBe('atlas/0001.webp')
+    expect(posterSrc({ id: '0002' })).toBe('atlas/0002.webp')
     expect(posterSrc({ id: '0025' })).toBe(null)
     expect(posterSrc(undefined)).toBe(null)
+    for (const id of ATLAS_VIDEO_IDS) expect(ATLAS_POSTER_IDS.has(id)).toBe(true)
   })
 
   it('only lists ids that exist in the exercise library', () => {
-    for (const id of ATLAS_VIDEO_IDS) expect(EXIDX[id]).toBeTruthy()
+    for (const id of ATLAS_POSTER_IDS) expect(EXIDX[id]).toBeTruthy()
   })
 
-  it('has an mp4 and a webp poster in public/atlas for every listed id', () => {
+  it('has the files in public/atlas for every listed id', () => {
     for (const id of ATLAS_VIDEO_IDS) {
       expect(existsSync(new URL(`../../public/atlas/${id}.mp4`, import.meta.url))).toBe(true)
+    }
+    for (const id of ATLAS_POSTER_IDS) {
       expect(existsSync(new URL(`../../public/atlas/${id}.webp`, import.meta.url))).toBe(true)
     }
   })
