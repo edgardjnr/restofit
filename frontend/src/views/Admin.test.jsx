@@ -74,11 +74,11 @@ describe('Admin user drill-down', () => {
     const sheet = render(mocks.sheets[0](() => {}))
     await settle()
     const buttons = [...sheet.querySelectorAll('button')].map(b => b.textContent)
-    expect(buttons).toContain('Disable account')
+    expect(buttons).toContain('Desativar conta')
     // The one real session is listed; the two shapeless entries are skipped, not drawn as blanks.
     const rows = [...sheet.querySelectorAll('.list > div')]
     expect(rows.length).toBe(1)
     expect(rows[0].textContent).toContain('Push day')
-    expect(rows[0].textContent).toContain('1 sets')
+    expect(rows[0].textContent).toContain('1 série')
   })
 })

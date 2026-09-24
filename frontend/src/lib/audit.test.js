@@ -22,8 +22,8 @@ describe('auditLabel', () => {
   it('shows an unknown event raw instead of rendering undefined', () => {
     // A dashboard one version behind the server must still say something truthful.
     expect(auditLabel('auth.something.new')).toBe('auth.something.new')
-    expect(auditLabel(undefined)).toBe('Unknown event')
-    expect(auditLabel('')).toBe('Unknown event')
+    expect(auditLabel(undefined)).toBe('Evento desconhecido')
+    expect(auditLabel('')).toBe('Evento desconhecido')
   })
 })
 
@@ -58,38 +58,38 @@ describe('auditLine', () => {
     // Guards the extraction itself: an empty match would make the two loops above vacuous.
     expect(EVENTS).toEqual(expect.arrayContaining(['auth.login.ok', 'auth.pair.create', 'auth.pair.ok', 'auth.pair.fail', 'admin.audit.clear']))
     expect(REASONS).toEqual(expect.arrayContaining(['challenge-expired', 'code-invalid', 'user-unavailable']))
-    expect(auditLine({ ev: 'auth.pair.fail', ok: false, msg: 'code-invalid' })).toEqual({ title: 'Pairing failed', sub: 'unknown caller · wrong or expired pairing code' })
-    expect(auditLine({ ev: 'auth.pair.ok', ok: true, name: 'Verifier' })).toEqual({ title: 'Paired a phone', sub: 'Verifier' })
+    expect(auditLine({ ev: 'auth.pair.fail', ok: false, msg: 'code-invalid' })).toEqual({ title: 'Falha no pareamento', sub: 'origem desconhecida · código de pareamento errado ou expirado' })
+    expect(auditLine({ ev: 'auth.pair.ok', ok: true, name: 'Verifier' })).toEqual({ title: 'Pareou um celular', sub: 'Verifier' })
   })
 
   it('names the person who did it', () => {
     expect(auditLine({ ev: 'auth.login.ok', ok: true, uid: 'u1', name: 'Duarte' }))
-      .toEqual({ title: 'Signed in', sub: 'Duarte' })
+      .toEqual({ title: 'Entrou', sub: 'Duarte' })
   })
 
   it('shows both sides of an admin action', () => {
     const l = auditLine({ ev: 'admin.user.disable', ok: true, uid: 'a', name: 'Duarte', tgt: 'b', tname: 'Ana' })
-    expect(l.title).toBe('Disabled an account')
+    expect(l.title).toBe('Desativou uma conta')
     expect(l.sub).toBe('Duarte · → Ana')
   })
 
   it('translates the reason on a failure but not the invite code on a success', () => {
     expect(auditLine({ ev: 'auth.login.fail', ok: false, msg: 'unknown-credential' }).sub)
-      .toBe('unknown caller · unknown passkey')
+      .toBe('origem desconhecida · passkey desconhecida')
     // admin.invite.* put the actual code in msg — that must not be run through auditReason.
     expect(auditLine({ ev: 'admin.invite.create', ok: true, name: 'Duarte', msg: 'A1B2C3D4' }).sub)
       .toBe('Duarte · A1B2C3D4')
   })
 
   it('says "unknown caller" only when a failure carries no identity', () => {
-    expect(auditLine({ ev: 'auth.login.fail', ok: false }).sub).toBe('unknown caller')
+    expect(auditLine({ ev: 'auth.login.fail', ok: false }).sub).toBe('origem desconhecida')
     // A successful event without a name is not an anonymous attacker, so it stays blank.
     expect(auditLine({ ev: 'auth.logout', ok: true }).sub).toBe('')
   })
 
   it('falls back to the uid when the name was never recorded', () => {
     expect(auditLine({ ev: 'auth.login.fail', ok: false, uid: 'Xy1', msg: 'user-missing' }).sub)
-      .toBe('Xy1 · the passkey points at a profile that no longer exists')
+      .toBe('Xy1 · a passkey aponta para um perfil que não existe mais')
   })
 
   it('appends the network when the operator opted into IPs', () => {
@@ -107,19 +107,19 @@ describe('fmtWhen', () => {
   const now = at(2026, 8, 23, 15, 0)   // Sunday
 
   it('says "today" for the same calendar day', () => {
-    expect(fmtWhen(at(2026, 8, 23, 9, 5), now)).toMatch(/^today /)
-    expect(fmtWhen(at(2026, 8, 23, 0, 1), now)).toMatch(/^today /)
+    expect(fmtWhen(at(2026, 8, 23, 9, 5), now)).toMatch(/^hoje /)
+    expect(fmtWhen(at(2026, 8, 23, 0, 1), now)).toMatch(/^hoje /)
   })
 
   it('uses the weekday inside the last six days', () => {
     const s = fmtWhen(at(2026, 8, 21, 18, 30), now)
-    expect(s).not.toMatch(/^today/)
+    expect(s).not.toMatch(/^hoje/)
     expect(s).toMatch(/^[A-Za-zÀ-ÿ.]+ \d/)
   })
 
   it('falls back to a date once it is older', () => {
     expect(fmtWhen(at(2026, 8, 12, 14, 32), now)).toMatch(/\d/)
-    expect(fmtWhen(at(2026, 8, 12, 14, 32), now)).not.toMatch(/^today/)
+    expect(fmtWhen(at(2026, 8, 12, 14, 32), now)).not.toMatch(/^hoje/)
   })
 
   it('always carries a time of day — that is the whole point of not reusing fmtDate', () => {

@@ -5,8 +5,8 @@
 // belongs here and not in Admin.jsx: it is the only part of the feature that can be wrong in a way
 // a person sees, and as a plain module it is testable without mounting the dashboard.
 //
-// Like the rest of the admin screen this is English-only — the operator surface deliberately
-// stays out of the per-language string packs (see the header of views/Admin.jsx). Times still
+// Like the rest of the admin screen this is hard-coded (pt-BR in RestoFit) — the operator surface
+// deliberately stays out of the per-language string packs (see the header of views/Admin.jsx). Times still
 // follow the UI language, the way numbers and dates already do.
 import { dateLocale } from './i18n-core.js'
 
@@ -14,42 +14,42 @@ import { dateLocale } from './i18n-core.js'
 export const auditCat = ev => String(ev || '').split('.')[0]
 
 const LABELS = {
-  'auth.login.ok': 'Signed in',
-  'auth.login.fail': 'Sign-in failed',
-  'auth.register.ok': 'Created a profile',
-  'auth.register.fail': 'Profile creation failed',
-  'auth.register.denied': 'Signup refused',
-  'auth.logout': 'Signed out',
-  'auth.logout.all': 'Signed out everywhere',
+  'auth.login.ok': 'Entrou',
+  'auth.login.fail': 'Falha ao entrar',
+  'auth.register.ok': 'Criou um perfil',
+  'auth.register.fail': 'Falha ao criar perfil',
+  'auth.register.denied': 'Cadastro recusado',
+  'auth.logout': 'Saiu',
+  'auth.logout.all': 'Saiu de todos os dispositivos',
   // Device pairing (Settings → "Pair the mobile app"): the code is minted in a signed-in browser
   // tab and redeemed by the app, so "ok" is the phone coming online, not a sign-in.
-  'auth.pair.create': 'Created a pairing code',
-  'auth.pair.ok': 'Paired a phone',
-  'auth.pair.fail': 'Pairing failed',
-  'admin.user.disable': 'Disabled an account',
-  'admin.user.enable': 'Re-enabled an account',
-  'admin.user.delete': 'Deleted an account',
-  'admin.invite.create': 'Created an invite code',
-  'admin.invite.revoke': 'Revoked an invite code',
-  'admin.audit.clear': 'Cleared the activity log',
-  'admin.denied': 'Blocked from the admin dashboard'
+  'auth.pair.create': 'Criou um código de pareamento',
+  'auth.pair.ok': 'Pareou um celular',
+  'auth.pair.fail': 'Falha no pareamento',
+  'admin.user.disable': 'Desativou uma conta',
+  'admin.user.enable': 'Reativou uma conta',
+  'admin.user.delete': 'Excluiu uma conta',
+  'admin.invite.create': 'Criou um código de convite',
+  'admin.invite.revoke': 'Revogou um código de convite',
+  'admin.audit.clear': 'Limpou o registro de atividades',
+  'admin.denied': 'Bloqueado no painel de admin'
 }
 // An unknown event is shown raw rather than dropped or rendered as "undefined": a dashboard
 // that is one version behind the server should still say *something* truthful.
-export const auditLabel = ev => LABELS[ev] || String(ev || 'Unknown event')
+export const auditLabel = ev => LABELS[ev] || String(ev || 'Evento desconhecido')
 
 const REASONS = {
-  'challenge-expired': 'the sign-in took too long and expired',
-  'unknown-credential': 'unknown passkey',
-  'verify-error': 'the passkey could not be verified',
-  'not-verified': 'the passkey was rejected',
-  'user-missing': 'the passkey points at a profile that no longer exists',
-  'account-disabled': 'the account is disabled',
-  'credential-exists': 'that passkey already belongs to a profile',
-  'invite-invalid': 'the invite code was used or revoked in the meantime',
-  'invite-rejected': 'wrong or already-used invite code',
-  'code-invalid': 'wrong or expired pairing code',
-  'user-unavailable': 'the profile behind the pairing code is disabled or gone'
+  'challenge-expired': 'o login demorou demais e expirou',
+  'unknown-credential': 'passkey desconhecida',
+  'verify-error': 'não foi possível verificar a passkey',
+  'not-verified': 'a passkey foi rejeitada',
+  'user-missing': 'a passkey aponta para um perfil que não existe mais',
+  'account-disabled': 'a conta está desativada',
+  'credential-exists': 'essa passkey já pertence a um perfil',
+  'invite-invalid': 'o código de convite foi usado ou revogado nesse meio-tempo',
+  'invite-rejected': 'código de convite errado ou já usado',
+  'code-invalid': 'código de pareamento errado ou expirado',
+  'user-unavailable': 'o perfil do código de pareamento está desativado ou não existe mais'
 }
 export const auditReason = msg => REASONS[msg] || (msg ? String(msg) : '')
 
@@ -59,7 +59,7 @@ export function auditLine(e) {
   const parts = []
   if (e.name) parts.push(e.name)
   else if (e.uid) parts.push(e.uid)
-  else if (!e.ok) parts.push('unknown caller')
+  else if (!e.ok) parts.push('origem desconhecida')
   if (e.tname) parts.push('→ ' + e.tname)
   // The reason codes and the invite codes share the msg field; only failures read as a reason.
   if (e.msg) parts.push(e.ok ? e.msg : auditReason(e.msg))
@@ -75,7 +75,7 @@ export function fmtWhen(ts, now = Date.now()) {
   const time = d.toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' })
   const n = new Date(now)
   const sameDay = d.toDateString() === n.toDateString()
-  if (sameDay) return 'today ' + time
+  if (sameDay) return 'hoje ' + time
   if (now - ts < 6 * 86400000 && ts <= now) return d.toLocaleDateString(dateLocale(), { weekday: 'short' }) + ' ' + time
   return d.toLocaleDateString(dateLocale(), { day: 'numeric', month: 'short' }) + ' ' + time
 }
