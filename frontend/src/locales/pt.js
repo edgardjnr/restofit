@@ -1250,4 +1250,11 @@ export default {
   'already added': 'já adicionado',
   'no exercises': 'sem exercícios',
   'Pick equipment': 'Escolher equipamento',
+  'Next workout': 'Próximo treino',
+  'Tomorrow': 'Amanhã',
+  'AI': 'IA',
+  'Artificial intelligence that designs and reviews your plan from your own training.': 'Inteligência artificial que cria e revê o teu plano a partir dos teus treinos.',
+  '{0} training days · {1} sets · {2} per week': '{0} dias de treino · {1} séries · {2} por semana',
+  'Nothing scheduled yet — tap a day below to plan your week.': 'Ainda nada agendado — toca num dia abaixo para planear a tua semana.',
+  '{0} set': '{0} série',
 }

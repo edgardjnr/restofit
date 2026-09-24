@@ -1250,4 +1250,11 @@ export default {
   'already added': 'पहले से जोड़ा हुआ',
   'no exercises': 'कोई व्यायाम नहीं',
   'Pick equipment': 'उपकरण चुनें',
+  'Next workout': 'अगला वर्कआउट',
+  'Tomorrow': 'कल',
+  'AI': 'AI',
+  'Artificial intelligence that designs and reviews your plan from your own training.': 'आर्टिफ़िशियल इंटेलिजेंस जो आपकी अपनी ट्रेनिंग से आपका प्लान बनाती और जाँचती है।',
+  '{0} training days · {1} sets · {2} per week': '{0} ट्रेनिंग दिन · {1} सेट · हर हफ़्ते {2}',
+  'Nothing scheduled yet — tap a day below to plan your week.': 'अभी कुछ तय नहीं है — अपना हफ़्ता प्लान करने के लिए नीचे किसी दिन पर टैप करें।',
+  '{0} set': '{0} सेट',
 }

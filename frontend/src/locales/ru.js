@@ -1250,4 +1250,11 @@ export default {
   'already added': 'уже добавлено',
   'no exercises': 'нет упражнений',
   'Pick equipment': 'Выбрать оборудование',
+  'Next workout': 'Следующая тренировка',
+  'Tomorrow': 'Завтра',
+  'AI': 'ИИ',
+  'Artificial intelligence that designs and reviews your plan from your own training.': 'Искусственный интеллект, который составляет и пересматривает ваш план по вашим же тренировкам.',
+  '{0} training days · {1} sets · {2} per week': 'Дней тренировок: {0} · подходов: {1} · {2} в неделю',
+  'Nothing scheduled yet — tap a day below to plan your week.': 'Пока ничего не запланировано — нажмите на день ниже, чтобы спланировать неделю.',
+  '{0} set': 'подходов: {0}',
 }

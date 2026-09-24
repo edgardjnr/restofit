@@ -6,6 +6,7 @@ import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Settings from './Settings.jsx'
 import Plan from './Plan.jsx'
+import { dayAssignSheet } from '../sheets.jsx'
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
@@ -46,7 +47,7 @@ vi.mock('./MobileOnboarding.jsx', () => ({ ConnectSheet: () => null }))
 vi.mock('../sheets.jsx', () => ({
   starterPlanSheet: vi.fn(), confirmSheet: vi.fn(), importFromApp: vi.fn(),
   importFromHevy: vi.fn(), equipmentProfileSheet: vi.fn(),
-  dayAssignSheet: vi.fn(), dayAddRoutineSheet: vi.fn(), planToolsSheet: vi.fn(),
+  dayAssignSheet: vi.fn(), planToolsSheet: vi.fn(), startFlow: vi.fn(),
 }))
 
 globalThis.__APP_VERSION__ ??= 'test'
@@ -67,7 +68,8 @@ afterEach(() => {
 })
 
 const segButton = label => [...host.querySelectorAll('.seg button')].find(b => b.textContent === label)
-const dayRows = () => [...host.querySelectorAll('.item .tt')].map(e => e.textContent)
+// The Plan week is a strip of day buttons; each one's accessible name starts with the full day.
+const dayRows = () => [...host.querySelectorAll('.plan-day')].map(b => b.getAttribute('aria-label').split(' · ')[0])
 
 describe('Settings — week starts on', () => {
   const mount = () => act(() => root.render(<Settings />))
@@ -93,6 +95,8 @@ describe('Settings — week starts on', () => {
 
 describe('Plan — the week schedule follows the setting', () => {
   const mount = () => act(() => root.render(<Plan />))
+  // With no routines the screen is the starter-plan offer, not a week.
+  beforeEach(() => { mocks.S.routines = [{ id: 'r1', name: 'Push', emoji: null, ex: [] }] })
 
   it('runs Monday to Sunday by default', () => {
     mount()
@@ -108,53 +112,48 @@ describe('Plan — the week schedule follows the setting', () => {
   })
 
   it('keeps a routine attached to its day, not to its position in the list', () => {
-    mocks.S.routines = [{ id: 'r1', name: 'Push', emoji: null, ex: [] }]
     mocks.S.week = { 0: 'r1' }        // Sunday
     mocks.S.weekStart = 0
     mount()
-    const rows = [...host.querySelectorAll('.item')]
-    expect(rows[0].querySelector('.tt').textContent).toBe('Sunday')
-    expect(rows[0].textContent).toContain('Push')
-    expect(rows[1].textContent).not.toContain('Push')
+    const days = [...host.querySelectorAll('.plan-day')]
+    expect(days[0].getAttribute('aria-label')).toBe('Sunday · 1 routine')
+    expect(days[0].classList.contains('on')).toBe(true)
+    expect(days[1].getAttribute('aria-label')).toBe('Monday · Rest')
+    expect(host.querySelector('.plan-routine .plan-days').textContent).toBe('Sun')
   })
 })
 
-describe('Plan — inline per-day routine management (combine routines)', () => {
+describe('Plan — a day is edited from its button (combine routines)', () => {
   const mount = () => act(() => root.render(<Plan />))
-  const dayContainer = name => [...host.querySelectorAll('.item')].find(el => el.querySelector('.tt')?.textContent === name)
+  const dayButton = name => [...host.querySelectorAll('.plan-day')].find(b => b.getAttribute('aria-label').startsWith(name + ' · '))
 
   beforeEach(() => {
     mocks.S.routines = [
       { id: 'r1', name: 'Push', emoji: null, ex: [{ id: 'a' }, { id: 'b' }] },
       { id: 'r2', name: 'Core', emoji: null, ex: [{ id: 'c' }] },
     ]
+    dayAssignSheet.mockClear()
   })
 
-  it('renders a sub-row per routine on a populated day, with the count hint', () => {
+  it('a combined day stays one button, marked and counted', () => {
     mocks.S.week = { 1: ['r1', 'r2'] }
     mount()
-    const mon = dayContainer('Monday')
-    expect(mon.textContent).toContain('Push')
-    expect(mon.textContent).toContain('Core')
-    expect(mon.textContent).toContain('2 routines')
+    expect(dayButton('Monday').classList.contains('on')).toBe(true)
+    expect(dayButton('Monday').getAttribute('aria-label')).toBe('Monday · 2 routines')
+    expect(dayButton('Tuesday').classList.contains('on')).toBe(false)
   })
 
-  it('✕ removes a routine, and drops the day key on the last removal', () => {
-    mocks.S.week = { 1: ['r1', 'r2'] }
-    mount()
-    const removeButtons = () => [...dayContainer('Monday').querySelectorAll('button[aria-label="Remove"]')]
-    act(() => { removeButtons()[1].dispatchEvent(new Event('click', { bubbles: true })) })
-    expect(mocks.S.week[1]).toEqual(['r1'])
-    mount()
-    act(() => { removeButtons()[0].dispatchEvent(new Event('click', { bubbles: true })) })
-    expect(mocks.S.week).not.toHaveProperty('1')
-  })
-
-  it('an empty day stays one tappable row', () => {
+  it('tapping a day opens its sheet with the getDay() index', () => {
     mocks.S.week = {}
     mount()
-    const tue = dayContainer('Tuesday')
-    expect(tue.textContent).toContain('Rest')
-    expect(tue.querySelectorAll('button[aria-label="Remove"]').length).toBe(0)
+    act(() => { dayButton('Tuesday').click() })
+    expect(dayAssignSheet).toHaveBeenCalledWith(2)
+  })
+
+  it('each routine row lists the days it is on, in week order', () => {
+    mocks.S.week = { 6: ['r1'], 1: ['r1', 'r2'] }
+    mount()
+    const days = [...host.querySelectorAll('.plan-routine .plan-days')].map(e => e.textContent)
+    expect(days).toEqual(['Mon · Sat', 'Mon'])
   })
 })

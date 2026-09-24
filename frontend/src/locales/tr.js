@@ -1250,4 +1250,11 @@ export default {
   'already added': 'zaten ekli',
   'no exercises': 'egzersiz yok',
   'Pick equipment': 'Ekipman seç',
+  'Next workout': 'Sonraki antrenman',
+  'Tomorrow': 'Yarın',
+  'AI': 'YZ',
+  'Artificial intelligence that designs and reviews your plan from your own training.': 'Kendi antrenmanlarından planını hazırlayan ve gözden geçiren yapay zekâ.',
+  '{0} training days · {1} sets · {2} per week': '{0} antrenman günü · {1} set · haftada {2}',
+  'Nothing scheduled yet — tap a day below to plan your week.': 'Henüz planlanmış bir şey yok — haftanı planlamak için aşağıdan bir güne dokun.',
+  '{0} set': '{0} set',
 }

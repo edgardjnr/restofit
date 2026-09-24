@@ -1253,4 +1253,11 @@ export default {
   'already added': 'már hozzáadva',
   'no exercises': 'nincs gyakorlat',
   'Pick equipment': 'Eszköz kiválasztása',
+  'Next workout': 'Következő edzés',
+  'Tomorrow': 'Holnap',
+  'AI': 'MI',
+  'Artificial intelligence that designs and reviews your plan from your own training.': 'Mesterséges intelligencia, amely a saját edzéseid alapján megtervezi és átnézi a tervedet.',
+  '{0} training days · {1} sets · {2} per week': '{0} edzésnap · {1} sorozat · heti {2}',
+  'Nothing scheduled yet — tap a day below to plan your week.': 'Még nincs semmi betervezve — koppints lent egy napra a heted megtervezéséhez.',
+  '{0} set': '{0} sorozat',
 }

@@ -672,6 +672,13 @@ export const PT_BR_OVERRIDES = {
   'Download & Install': 'Baixar e instalar',
   'Starting download…': 'Iniciando download…',
   'Downloading update…': 'Baixando atualização…',
+  'Next workout': 'Próximo treino',
+  'Tomorrow': 'Amanhã',
+  'AI': 'IA',
+  'Artificial intelligence that designs and reviews your plan from your own training.': 'Inteligência artificial que monta e revisa seu plano a partir dos seus treinos.',
+  '{0} training days · {1} sets · {2} per week': '{0} dias de treino · {1} séries · {2} por semana',
+  'Nothing scheduled yet — tap a day below to plan your week.': 'Nada agendado ainda — toque num dia abaixo para planejar sua semana.',
+  '{0} set': '{0} série',
 }
 
 export default { ...pt, ...PT_BR_OVERRIDES }

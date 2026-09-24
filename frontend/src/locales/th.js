@@ -1261,4 +1261,11 @@ export default {
   'already added': 'เพิ่มแล้ว',
   'no exercises': 'ไม่มีท่าออกกำลังกาย',
   'Pick equipment': 'เลือกอุปกรณ์',
+  'Next workout': 'เวิร์กเอาต์ถัดไป',
+  'Tomorrow': 'พรุ่งนี้',
+  'AI': 'AI',
+  'Artificial intelligence that designs and reviews your plan from your own training.': 'ปัญญาประดิษฐ์ที่ช่วยออกแบบและทบทวนแผนของคุณจากการฝึกของคุณเอง',
+  '{0} training days · {1} sets · {2} per week': 'ฝึก {0} วัน · {1} เซ็ต · {2} ต่อสัปดาห์',
+  'Nothing scheduled yet — tap a day below to plan your week.': 'ยังไม่มีอะไรในตาราง — แตะวันด้านล่างเพื่อวางแผนสัปดาห์ของคุณ',
+  '{0} set': '{0} เซ็ต',
 }

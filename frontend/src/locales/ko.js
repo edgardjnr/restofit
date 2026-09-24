@@ -1250,4 +1250,11 @@ export default {
   'already added': '이미 추가됨',
   'no exercises': '운동 없음',
   'Pick equipment': '기구 선택',
+  'Next workout': '다음 운동',
+  'Tomorrow': '내일',
+  'AI': 'AI',
+  'Artificial intelligence that designs and reviews your plan from your own training.': '내 운동 기록을 바탕으로 플랜을 짜고 점검해 주는 인공지능입니다.',
+  '{0} training days · {1} sets · {2} per week': '운동일 {0}일 · {1}세트 · 주당 {2}',
+  'Nothing scheduled yet — tap a day below to plan your week.': '아직 계획된 운동이 없어요 — 아래에서 요일을 눌러 한 주를 계획하세요.',
+  '{0} set': '{0}세트',
 }

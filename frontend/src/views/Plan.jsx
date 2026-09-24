@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
-import { DAYN, weekOrder, weekStartOf, uid, exCount, routineCount } from '../lib/format.js'
+import { DAYN, DAYS, weekOrder, weekStartOf, uid, exCount, routineCount, todayISO, fmtDur } from '../lib/format.js'
 import { t } from '../lib/i18n.js'
-import { dayAssignSheet, dayAddRoutineSheet, starterPlanSheet, planToolsSheet } from '../sheets.jsx'
+import { dayAssignSheet, starterPlanSheet, planToolsSheet, startFlow } from '../sheets.jsx'
 import Icon from '../components/Icon.jsx'
 import { Button } from '../components/ui.jsx'
 import { tappable } from '../lib/use-sheet-keyboard.js'
@@ -10,6 +10,11 @@ import { glyphOf, DEFAULT_GLYPH } from '../lib/glyphs.js'
 import { DEMO } from '../lib/demo.js'
 import { MOBILE } from '../lib/mobile.js'
 import { coachAvailable } from '../lib/coach.js'
+import { routineStats, sessionStats, weekSummary, upcomingSession, shortDay } from '../lib/plan-summary.js'
+
+const setCount = n => t(n === 1 ? '{0} set' : '{0} sets', n)
+// "6 exercises · 20 sets · ~55 min" — the one technical line a routine or a session gets.
+const statLine = s => s.ex ? [exCount(s.ex), setCount(s.sets), '~' + t('{0} min', s.min)].join(' · ') : exCount(0)
 
 export default function Plan() {
   const nav = useNavigate()
@@ -40,11 +45,14 @@ export default function Plan() {
     nav('/plan/r/' + r.id)
   }
 
-  // Pull one routine off a weekday; drop the key when the day empties (never store []).
-  const removeFromDay = (d, rid) => update(s => {
-    const next = [].concat(s.week[d] || []).filter(id => id !== rid)
-    if (next.length) s.week[d] = next; else delete s.week[d]
-  })
+  const order = weekOrder(weekStartOf(S))
+  const idsOn = d => [].concat(S.week[d] || []).filter(id => S.routines.some(r => r.id === id))
+  const todayWd = new Date().getDay()
+  const next = upcomingSession(S, todayISO())
+  const week = weekSummary(S)
+  // A session already running is resumed, not started over.
+  const start = () => S.active ? nav('/workout') : startFlow(next.ids)
+  const when = !next ? '' : next.offset === 0 ? t('Today') : next.offset === 1 ? t('Tomorrow') : t(DAYN[next.weekday])
 
   return <>
     <div className="hdr">
@@ -54,62 +62,62 @@ export default function Plan() {
     {showCoach && <button className="coach-cta" onClick={() => nav('/coach')}>
       <span className="coach-cta-av"><Icon name="sparkles" /></span>
       <span className="coach-cta-t">
-        <b>{t('Coach')}</b>
-        <span>{t('Plan design and reviews, from your own training')}</span>
+        <b>{t('Coach')} <em className="coach-cta-ai">{t('AI')}</em></b>
+        <span>{t('Artificial intelligence that designs and reviews your plan from your own training.')}</span>
       </span>
       <Icon name="chevronRight" className="coach-cta-chev" />
     </button>}
 
-    <div className="cols"><div>
-      <h4 className="sec">{t('Week schedule')}</h4>
-      <div className="list" style={{ display: 'flex', flexDirection: 'column' }}>
-        {weekOrder(weekStartOf(S)).map(d => {
-          const dayRoutines = [].concat(S.week[d] || []).map(id => S.routines.find(x => x.id === id)).filter(Boolean)
-          // An empty day stays one tappable row → pick its first routine (today's behaviour).
-          if (!dayRoutines.length) return <div key={d} className="item" {...tappable(() => dayAssignSheet(d))}>
-            <div className="grow"><div className="tt">{t(DAYN[d])}</div></div>
-            <span className="tag">{t('Rest')}</span>
-            <Icon name="chevronRight" className="chev" /></div>
-          // A populated day: always-visible routine sub-rows + inline ✕, then ＋ Add routine.
-          return <div key={d} className="item" style={{ display: 'block', padding: '10px 14px' }}>
-            <div className="row between" style={{ marginBottom: 6 }}>
-              <div className="tt">{t(DAYN[d])}</div>
-              <div className="small dim">{routineCount(dayRoutines.length)}</div>
-            </div>
-            {dayRoutines.map(r => <div key={r.id} className="row" style={{ gap: 8, padding: '4px 0 4px 8px' }}>
-              <span className="lrow-i" style={{ width: 26, height: 26, fontSize: 14 }}><Icon name={glyphOf(r.emoji)} /></span>
-              <div className="grow" style={{ minWidth: 0 }}><div className="tt" style={{ fontSize: 14 }}>{r.name}</div><div className="ss">{exCount(r.ex.length)}</div></div>
-              <button className="iconbtn sm" aria-label={t('Remove')} onClick={() => removeFromDay(d, r.id)}><Icon name="xmark" /></button>
-            </div>)}
-            <button className="btn ghost sm" style={{ marginTop: 4, marginLeft: 8 }} onClick={() => dayAddRoutineSheet(d)}>
-              <Icon name="plus" /> {t('Add routine')}
-            </button>
-          </div>
+    {S.routines.length ? <div className="cols"><div>
+      <div className="row between plan-sec"><h4 className="sec">{t('Next workout')}</h4></div>
+      <div className="plan-next">
+        {next ? <>
+          <div className="plan-next-k">{when}</div>
+          <div className="plan-next-n">{next.routines.map(r => r.name).join(' + ')}</div>
+          <div className="plan-next-m">{statLine(sessionStats(next.routines))}</div>
+          <Button variant="primary" icon="play" onClick={start}>{S.active ? t('Continue workout') : t('Start')}</Button>
+        </> : <div className="plan-next-m">{t('Nothing scheduled yet — tap a day below to plan your week.')}</div>}
+      </div>
+      {/* The week, one tap per day. A day never grows with its routines any more — the sheet
+          behind the tap is where a combined day is edited. */}
+      <div className="plan-week">
+        {order.map(d => {
+          const n = idsOn(d).length
+          return <button key={d} className={'plan-day' + (n ? ' on' : '') + (d === todayWd ? ' today' : '')}
+            aria-label={`${t(DAYN[d])} · ${n ? routineCount(n) : t('Rest')}`} onClick={() => dayAssignSheet(d)}>
+            <span className="lbl">{t(DAYS[d])}</span><span className="dot" />
+          </button>
         })}
       </div>
+      {week.days > 0 && <div className="plan-sum">{t('{0} training days · {1} sets · {2} per week', week.days, week.sets, '~' + fmtDur(week.min * 60000))}</div>}
     </div><div>
-      <div className="row between" style={{ marginTop: 22, marginBottom: 10 }}>
-        <h4 className="sec" style={{ margin: 0 }}>{t('Routines')}</h4>
+      <div className="row between plan-sec">
+        <h4 className="sec">{t('Routines')}</h4>
         <Button size="sm" variant="tinted" icon="plus" onClick={addRoutine}>{t('New')}</Button>
       </div>
-      {S.routines.length ? <div className="list">{S.routines.map((r, i) => <div key={r.id} className="item" {...tappable(() => nav('/plan/r/' + r.id))}>
-        <span className="lrow-i"><Icon name={glyphOf(r.emoji)} /></span>
-        <div className="grow"><div className="tt">{r.name}</div><div className="ss">{exCount(r.ex.length)}</div></div>
-        {/* The order of this list is the order of `S.routines`, and every other screen reads the
-            same array — the Start screen, the day-assignment sheets, the routine pickers. So
-            moving a routine here moves it everywhere, which is what the request asked for (#142). */}
-        {S.routines.length > 1 && <div style={{ display: 'flex', gap: 2, flex: 'none' }}>
-          <button className="iconbtn" aria-label={t('Move up')} title={t('Move up')} disabled={i === 0}
-            style={{ width: 28, height: 24, borderRadius: 7, fontSize: 12 }}
-            onClick={ev => { ev.stopPropagation(); moveRoutine(i, -1) }}><Icon name="chevronUp" /></button>
-          <button className="iconbtn" aria-label={t('Move down')} title={t('Move down')} disabled={i === S.routines.length - 1}
-            style={{ width: 28, height: 24, borderRadius: 7, fontSize: 12 }}
-            onClick={ev => { ev.stopPropagation(); moveRoutine(i, 1) }}><Icon name="chevronDown" /></button>
-        </div>}
-        <Icon name="chevronRight" className="chev" /></div>)}</div> : <>
-        <div className="empty"><div className="ico"><Icon name="clipboard" /></div>{t('No routines yet.')}<br />{t('Create one or load the starter plan.')}</div>
-        <Button icon="sparkles" onClick={starterPlanSheet}>{t('Load starter plan')}</Button>
-      </>}
-    </div></div>
+      <div className="list plan-list">{S.routines.map((r, i) => {
+        const days = order.filter(d => idsOn(d).includes(r.id))
+        return <div key={r.id} className="item plan-routine" {...tappable(() => nav('/plan/r/' + r.id))}>
+          <span className="lrow-i"><Icon name={glyphOf(r.emoji)} /></span>
+          <div className="grow">
+            <div className="plan-rt"><span className="tt">{r.name}</span>
+              <span className={'plan-days' + (days.length ? ' on' : '')}>{days.length ? days.map(d => shortDay(d)).join(' · ') : '—'}</span></div>
+            <div className="ss">{statLine(routineStats(r))}</div>
+          </div>
+          {/* The order of this list is the order of `S.routines`, and every other screen reads the
+              same array — the Start screen, the day-assignment sheets, the routine pickers. So
+              moving a routine here moves it everywhere, which is what the request asked for (#142). */}
+          {S.routines.length > 1 && <div className="plan-move">
+            <button className="iconbtn" aria-label={t('Move up')} title={t('Move up')} disabled={i === 0}
+              onClick={ev => { ev.stopPropagation(); moveRoutine(i, -1) }}><Icon name="chevronUp" /></button>
+            <button className="iconbtn" aria-label={t('Move down')} title={t('Move down')} disabled={i === S.routines.length - 1}
+              onClick={ev => { ev.stopPropagation(); moveRoutine(i, 1) }}><Icon name="chevronDown" /></button>
+          </div>}
+          <Icon name="chevronRight" className="chev" /></div>
+      })}</div>
+    </div></div> : <>
+      <div className="empty"><div className="ico"><Icon name="clipboard" /></div>{t('No routines yet.')}<br />{t('Create one or load the starter plan.')}</div>
+      <Button icon="sparkles" onClick={starterPlanSheet}>{t('Load starter plan')}</Button>
+    </>}
   </>
 }

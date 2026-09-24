@@ -1619,48 +1619,32 @@ function DayOverride({ iso, close }) {
 }
 export const dayOverrideSheet = iso => ui().openSheet(close => <DayOverride iso={iso} close={close} />)
 
+// A weekday on the Plan screen: every routine is a check that stays open, so a combined day
+// (Push + Core) is two taps, not one sheet per routine. Rest clears the day; the key is dropped
+// rather than stored as [] (a stray [] still reads as rest, see effectiveRoutineIds).
 function DayAssign({ day, close }) {
   const st = useStore(s => s.S)
-  // A weekday holds a routine-id list; this single-pick sheet sets an empty day to exactly one
-  // routine (or rest). The inline ＋ Add routine on the Plan screen is what appends to a
-  // populated day.
   const cur = [].concat(st.week[day] || [])
-  const set = v => { update(s => { if (v) s.week[day] = [v]; else delete s.week[day] }); close() }
+  const toggle = id => update(s => {
+    const now = [].concat(s.week[day] || [])
+    const next = now.includes(id) ? now.filter(x => x !== id) : [...now, id]
+    if (next.length) s.week[day] = next; else delete s.week[day]
+  })
+  const rest = () => update(s => { delete s.week[day] })
   return <>
     <h3>{t(DAYN[day])}</h3>
+    <div className="muted small" style={{ marginBottom: 12 }}>{cur.length ? routineCount(cur.length) : t('Rest day')}</div>
     <div className="list">
-      <div className="item" {...tappable(() => set(''))}><span className="lrow-i" style={{ background: 'var(--surface-3)' }}><Icon name="moon" /></span><div className="grow"><div className="tt">{t('Rest day')}</div></div>{!cur.length && <Icon name="check" className="accent" />}</div>
-      {st.routines.map(r => <div key={r.id} className="item" {...tappable(() => set(r.id))}>
+      <div className="item" {...tappable(rest)}><span className="lrow-i" style={{ background: 'var(--surface-3)' }}><Icon name="moon" /></span><div className="grow"><div className="tt">{t('Rest day')}</div></div>{!cur.length && <Icon name="check" className="accent" />}</div>
+      {st.routines.map(r => <div key={r.id} className="item" {...tappable(() => toggle(r.id))} role="checkbox" aria-checked={cur.includes(r.id)}>
         <span className="lrow-i"><Icon name={glyphOf(r.emoji)} /></span>
         <div className="grow"><div className="tt">{r.name}</div><div className="ss">{exCount(r.ex.length)}</div></div>
         {cur.includes(r.id) && <Icon name="check" className="accent" />}</div>)}
     </div>
+    <Button variant="primary" style={{ marginTop: 14 }} onClick={close}>{t('Done')}</Button>
   </>
 }
 export const dayAssignSheet = day => ui().openSheet(close => <DayAssign day={day} close={close} />)
-
-// ＋ Add routine on a populated weekday: single-pick, appends to the day's list. A routine
-// already on that day is disabled; picking one closes the sheet.
-function DayAddRoutine({ day, close }) {
-  const st = useStore(s => s.S)
-  const on = new Set([].concat(st.week[day] || []))
-  const add = id => { update(s => { s.week[day] = [...[].concat(s.week[day] || []), id] }); close() }
-  return <>
-    <h3>{t('Add routine')}</h3>
-    <div className="list">
-      {st.routines.map(r => {
-        const already = on.has(r.id)
-        return <div key={r.id} className={'item' + (already ? ' disabled' : '')} aria-disabled={already || undefined}
-          {...tappable(already ? null : () => add(r.id))}>
-          <span className="lrow-i"><Icon name={glyphOf(r.emoji)} /></span>
-          <div className="grow"><div className="tt">{r.name}</div><div className="ss">{exCount(r.ex.length)}</div></div>
-          {already ? <span className="tag">{t('already added')}</span> : <Icon name="chevronRight" className="chev" />}
-        </div>
-      })}
-    </div>
-  </>
-}
-export const dayAddRoutineSheet = day => ui().openSheet(close => <DayAddRoutine day={day} close={close} />)
 
 /* ============================ workout detail ============================ */
 function WorkoutDetail({ w, close }) {

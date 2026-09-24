@@ -10,7 +10,7 @@ import Plan from './Plan.jsx'
 
 vi.mock('react-router-dom', () => ({ useNavigate: () => vi.fn() }))
 vi.mock('../sheets.jsx', () => ({
-  dayAssignSheet: vi.fn(), dayAddRoutineSheet: vi.fn(), starterPlanSheet: vi.fn(), planToolsSheet: vi.fn(),
+  dayAssignSheet: vi.fn(), starterPlanSheet: vi.fn(), planToolsSheet: vi.fn(), startFlow: vi.fn(),
 }))
 
 const routine = (id, name) => ({ id, name, emoji: null, ex: [{ id: '0025' }] })
@@ -23,8 +23,7 @@ beforeEach(() => {
 afterEach(() => { act(() => root.unmount()); host.remove() })
 
 const mount = () => act(() => root.render(<Plan />))
-// The weekday rows above the routine list share the `.item` class, so the rows are found by the
-// thing only a routine has: the move controls' own column.
+// Routine rows are found by the thing only a routine has: the move controls' own column.
 const rows = () => [...host.querySelectorAll('.item')].filter(e => e.querySelector('button[aria-label="Move up"]'))
 const names = () => rows().map(e => e.querySelector('.tt').textContent)
 const btn = (row, label) => rows()[row].querySelector(`button[aria-label="${label}"]`)

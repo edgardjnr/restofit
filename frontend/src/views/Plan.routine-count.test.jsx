@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 // A weekday with one routine read "1 routines" (QA copy): the header formatted the count
 // with the plural key only, although both forms have been in every pack for a long time.
+// The week is a strip of day buttons now; the count lives in each one's accessible name.
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -29,7 +30,7 @@ vi.mock('../store/useStore.js', () => {
 vi.mock('react-router-dom', () => ({ useNavigate: () => () => {} }))
 vi.mock('../lib/mobile.js', () => ({ MOBILE: false, isAndroid: () => Promise.resolve(false), shareExport: vi.fn(), syncReminder: vi.fn() }))
 vi.mock('../sheets.jsx', () => ({
-  starterPlanSheet: vi.fn(), dayAssignSheet: vi.fn(), dayAddRoutineSheet: vi.fn(), planToolsSheet: vi.fn(),
+  starterPlanSheet: vi.fn(), dayAssignSheet: vi.fn(), planToolsSheet: vi.fn(), startFlow: vi.fn(),
 }))
 
 let host, root
@@ -48,7 +49,7 @@ afterEach(() => {
 })
 
 const mount = () => act(() => root.render(<Plan />))
-const countOn = day => [...host.querySelectorAll('.item')].find(el => el.querySelector('.tt')?.textContent === day)?.querySelector('.small.dim')?.textContent
+const countOn = day => [...host.querySelectorAll('.plan-day')].map(b => b.getAttribute('aria-label')).find(l => l.startsWith(day + ' · '))?.split(' · ')[1]
 
 describe('Plan — the day header counts its routines', () => {
   it('uses the singular for one routine and the plural for more', () => {
@@ -56,5 +57,6 @@ describe('Plan — the day header counts its routines', () => {
     mount()
     expect(countOn('Monday')).toBe('1 routine')
     expect(countOn('Tuesday')).toBe('2 routines')
+    expect(countOn('Wednesday')).toBe('Rest')
   })
 })

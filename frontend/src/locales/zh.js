@@ -1250,4 +1250,11 @@ export default {
   'already added': '已添加',
   'no exercises': '没有动作',
   'Pick equipment': '选择器械',
+  'Next workout': '下次训练',
+  'Tomorrow': '明天',
+  'AI': 'AI',
+  'Artificial intelligence that designs and reviews your plan from your own training.': '根据你自己的训练记录来制定和复盘计划的人工智能。',
+  '{0} training days · {1} sets · {2} per week': '训练 {0} 天 · {1} 组 · 每周 {2}',
+  'Nothing scheduled yet — tap a day below to plan your week.': '还没有安排 — 点下方的某一天来规划你的一周。',
+  '{0} set': '{0} 组',
 }
