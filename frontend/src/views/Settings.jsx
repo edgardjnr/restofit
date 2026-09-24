@@ -234,7 +234,7 @@ export default function Settings() {
     <Section title={t('General')} footer={t('Switching the unit offers to convert every stored weight.')}>
       <SelectRow
         icon="globe" iconTint="var(--blue)" title={t('Language')}
-        value={S.lang || 'en'} onChange={v => update(s => { s.lang = v })}
+        value={S.lang || 'pt-BR'} onChange={v => update(s => { s.lang = v })}
         options={Object.entries(LANGS).map(([k, name]) => ({
           value: k, label: name,
           subtitle: INSTR_LANGS.includes(k) ? null : t("Exercise instructions aren't available in this language yet — they stay in English."),
@@ -411,20 +411,17 @@ export default function Settings() {
     </Section>}
 
     {/* ---------- updates: the last thing on the page, so keeping RestoFit current is one tap ----------
-        On Android the row is always there — it checks on demand and installs when a release is
-        newer (checksum verified, see onUpdateRowClick). On the web the app updates with its
-        server, so the row points at the APK for the phone instead. iOS has no APK: nothing. */}
-    {(!MOBILE || android) && <Section title={t('Updates')}
-      footer={MOBILE ? t('Releases are checked on gitlab.com. The download is verified against its checksum before the installer opens.') : t('The web app updates together with your server. The Android app installs its own updates from here.')}>
-      {MOBILE
-        ? <Row icon="download" iconTint="var(--acc)"
-            title={updateInfo?.hasUpdate ? t('Update to RestoFit v{0}', updateInfo.latestVersion) : t('Check for updates')}
-            subtitle={checking ? t('Checking…') : t('You have v{0}', __APP_VERSION__)}
-            accessory="chevron"
-            onClick={() => (updateInfo?.hasUpdate ? onUpdateRowClick() : checkNow())} />
-        : <Row icon="download" iconTint="var(--acc)" title={t('Get the Android app')}
-            subtitle={t('Download the APK from restofit.restaurantepro.com.br')} accessory="chevron"
-            onClick={() => window.open('https://restofit.restaurantepro.com.br', '_blank', 'noopener')} />}
+        Only in the native Android build: it checks on demand and installs when a release is
+        newer (checksum verified, see onUpdateRowClick). RestoFit ships no APK, so the web app,
+        which updates together with its server, shows nothing here; the Tip above covers
+        installing it to the home screen. */}
+    {MOBILE && android && <Section title={t('Updates')}
+      footer={t('Releases are checked on gitlab.com. The download is verified against its checksum before the installer opens.')}>
+      <Row icon="download" iconTint="var(--acc)"
+        title={updateInfo?.hasUpdate ? t('Update to RestoFit v{0}', updateInfo.latestVersion) : t('Check for updates')}
+        subtitle={checking ? t('Checking…') : t('You have v{0}', __APP_VERSION__)}
+        accessory="chevron"
+        onClick={() => (updateInfo?.hasUpdate ? onUpdateRowClick() : checkNow())} />
     </Section>}
 
     {/* The version, at the bottom of Settings — which is where the support template has been

@@ -26,7 +26,7 @@ const subs = new Set()
 const notify = () => { subs.forEach(f => f()) }
 
 export async function setLang(l) {
-  if (!LANGS[l]) l = 'en'
+  if (!LANGS[l]) l = 'pt-BR'
   if (l === getLang() && getVersion() > 0) return
   // A derived locale (de-CH) ships no packs of its own: it loads its base language's and
   // transforms the strings on the way through. `l` stays the selected language throughout, so
