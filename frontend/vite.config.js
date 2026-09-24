@@ -10,7 +10,17 @@ const backend = process.env.API_TARGET || 'http://127.0.0.1:3000'
 // presenting the expected Origin here covers the ones that don't send it. Match your .env if you
 // changed ORIGIN: API_ORIGIN=https://gym.example.com npm run dev
 const apiOrigin = process.env.API_ORIGIN || 'http://localhost:8080'
-const media = process.env.MEDIA_TARGET || 'http://127.0.0.1:8888'
+// Exercise media in dev: a local media server when MEDIA_TARGET is set, otherwise the same pinned
+// dataset commit the mobile build reads from the CDN (package.json → build:mobile), so a fresh
+// checkout shows images and GIFs without downloading ~140 MB or running anything on :8888.
+const DATASET_PATH = '/gh/hasaneyldrm/exercises-dataset@7455efae41b330c265e7cd4b78dfa848e7ce5ebd'
+const mediaProxy = dir => process.env.MEDIA_TARGET
+  ? { target: process.env.MEDIA_TARGET, changeOrigin: true }
+  : {
+      target: 'https://cdn.jsdelivr.net',
+      changeOrigin: true,
+      rewrite: p => p.replace(/^\/(img|gif)\//, `${DATASET_PATH}/${dir}/`)
+    }
 
 // Optional web analytics (Umami). Injected only when BOTH vars are set at build time,
 // so a plain `npm run build` — and every self-hosted install — stays telemetry-free.
@@ -62,9 +72,12 @@ export default defineConfig({
     fs: { allow: ['..'] },
     proxy: {
       '/api': { target: backend, changeOrigin: true, headers: { Origin: apiOrigin } },
-      '/img': { target: media, changeOrigin: true },
-      '/gif': { target: media, changeOrigin: true }
+      '/img': mediaProxy('images'),
+      '/gif': mediaProxy('videos')
     }
   },
+  // No PostCSS in this app. An inline (empty) config stops Vite from walking up the directory
+  // tree and picking up an unrelated postcss.config from a parent folder.
+  css: { postcss: {} },
   build: { chunkSizeWarningLimit: 1500 }
 })

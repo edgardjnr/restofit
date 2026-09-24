@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { imgSrc, gifSrc, videoSrc } from '../lib/exercises.js'
+import { imgSrc, gifSrc, videoSrc, posterSrc } from '../lib/exercises.js'
 import { useStore } from '../store/useStore.js'
 import { t, exerciseNameFor } from '../lib/i18n.js'
 import Icon from './Icon.jsx'
@@ -45,7 +45,7 @@ export default function Media({ ex, id, compact, minimizable }) {
       {failed === 'all'
         ? <div className="exmedia-x"><Icon name="dumbbell" /></div>
         : video && failed == null
-          ? <video ref={videoRef} src={video} autoPlay loop muted playsInline disablePictureInPicture
+          ? <video ref={videoRef} src={video} poster={posterSrc(ex)} autoPlay loop muted playsInline disablePictureInPicture
               aria-label={exerciseNameFor(ex)} onError={() => setFailed('gif')} />
           : <img decoding="async" draggable={false} src={showGif ? gifSrc(ex) : imgSrc(ex)} alt={exerciseNameFor(ex)} onError={onError} />}
       {minimizable && (
@@ -63,6 +63,7 @@ export default function Media({ ex, id, compact, minimizable }) {
 }
 
 export function Thumb({ ex }) {
-  if (!ex.img) return <div className="thumb thumb-x"><Icon name="dumbbell" /></div>
-  return <img className="thumb" loading="lazy" decoding="async" draggable={false} src={imgSrc(ex)} alt="" />
+  const poster = posterSrc(ex)
+  if (!poster && !ex.img) return <div className="thumb thumb-x"><Icon name="dumbbell" /></div>
+  return <img className="thumb" loading="lazy" decoding="async" draggable={false} src={poster || imgSrc(ex)} alt="" />
 }

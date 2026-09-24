@@ -136,10 +136,14 @@ export const imgSrc = ex => IMG_BASE + ex.img
 export const gifSrc = ex => GIF_BASE + ex.gif
 
 // Our own ATLAS-01 demo videos (public/atlas/<id>.mp4), shipped inside the build so they work on
-// every instance and in the mobile app. An exercise listed here plays its mp4 instead of the GIF;
-// the still image stays the fallback and the thumbnail. Add the id here when a new video lands.
+// every instance and in the mobile app. An exercise listed here plays its mp4 instead of the GIF,
+// and its poster (public/atlas/<id>.webp, the peak frame of the video) is the list thumbnail and
+// what shows while the video loads. The dataset still stays the fallback if the video fails.
+// Add the id here when a new video and its poster land.
 export const ATLAS_VIDEO_IDS = new Set(['0001', '1714'])
-export const videoSrc = ex => (ex?.id && ATLAS_VIDEO_IDS.has(ex.id) ? 'atlas/' + ex.id + '.mp4' : null)
+const hasAtlas = ex => !!(ex?.id && ATLAS_VIDEO_IDS.has(ex.id))
+export const videoSrc = ex => (hasAtlas(ex) ? 'atlas/' + ex.id + '.mp4' : null)
+export const posterSrc = ex => (hasAtlas(ex) ? 'atlas/' + ex.id + '.webp' : null)
 
 // Cardio exercises log time + speed instead of weight × reps.
 export const isCardio = idOrEx => (typeof idOrEx === 'string' ? EXIDX[idOrEx] : idOrEx)?.bp === 'cardio'
