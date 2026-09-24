@@ -1257,4 +1257,8 @@ export default {
   '{0} training days · {1} sets · {2} per week': '{0} ट्रेनिंग दिन · {1} सेट · हर हफ़्ते {2}',
   'Nothing scheduled yet — tap a day below to plan your week.': 'अभी कुछ तय नहीं है — अपना हफ़्ता प्लान करने के लिए नीचे किसी दिन पर टैप करें।',
   '{0} set': '{0} सेट',
+  'Separate from exercise above': 'ऊपर वाली एक्सरसाइज़ से अलग करें',
+  'no rest between them': 'बीच में आराम नहीं',
+  'Tap the link between two exercises to superset them; tap an orange link to separate them. Use ⋮ to edit, move or remove.': 'दो एक्सरसाइज़ के बीच लिंक पर टैप करके सुपरसेट बनाएँ; नारंगी लिंक पर टैप करके अलग करें। बदलने, खिसकाने या हटाने के लिए ⋮।',
+  'Routine settings': 'रूटीन सेटिंग्स',
 }

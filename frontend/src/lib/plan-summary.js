@@ -1,7 +1,8 @@
 // The numbers the Plan screen reads at a glance: what a routine weighs (exercises, work sets, a
 // rough duration), what the whole week adds up to, and which session comes next.
 import { effectiveRoutines, effectiveRoutineIds, nextTrainingDay } from './history.js'
-import { dateLocale } from './i18n-core.js'
+import { dateLocale, t } from './i18n-core.js'
+import { exCount } from './format.js'
 
 // The same floor buildSets uses: an exercise without a set count still starts with one set.
 const setsOf = e => Math.max(1, Number(e?.sets) || 1)
@@ -58,3 +59,7 @@ export function shortDay(wd, locale = dateLocale()) {
   const s = new Date(2024, 0, 7 + wd, 12).toLocaleDateString(locale, { weekday: 'short' }).replace(/\.$/, '')
   return s.charAt(0).toLocaleUpperCase(locale) + s.slice(1)
 }
+
+export const setCount = n => t(n === 1 ? '{0} set' : '{0} sets', n)
+// "6 exercises · 20 sets · ~55 min" — the one technical line a routine or a session gets.
+export const statLine = s => s.ex ? [exCount(s.ex), setCount(s.sets), '~' + t('{0} min', s.min)].join(' · ') : exCount(0)

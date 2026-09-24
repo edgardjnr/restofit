@@ -1528,3 +1528,38 @@ body.chips-dragging *{cursor:inherit}
 .plan-move{display:flex;gap:2px;flex:none}
 .plan-move .iconbtn{width:28px;height:24px;border-radius:7px;font-size:12px}
 @media (hover:hover){.plan-day:hover{background:var(--surface-2)}}
+
+/* ------------------------------------------------------ routine editor (C2) -- */
+.rt-hdr{align-items:center;gap:8px;margin-bottom:2px}
+.rt-name{
+  flex:1;min-width:0;background:none;border:0;border-radius:10px;padding:6px 8px;margin:0 0 0 4px;
+  font:inherit;font-size:24px;font-weight:800;letter-spacing:-.02em;color:var(--label);outline:none
+}
+.rt-name:focus{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--acc-line)}
+.rt-glyph{background:var(--acc-soft);color:var(--acc);border-radius:10px}
+.rt-sum{font-size:13px;color:var(--label-2);padding:0 4px}
+.rt-line{color:var(--label-2)}
+.rt-more{width:30px;height:30px;background:none;color:var(--label-2);font-size:16px;flex:none}
+.rt-hint{gap:6px;margin:10px 2px 0;align-items:flex-start}
+.rt-hint .icn{font-size:13px;flex:none;margin-top:2px;color:var(--acc)}
+.rt-ss-label span{font-weight:400;color:var(--label-2)}
+/* A superset is one joined card: no gap, square inner corners, a hairline seam. */
+.routine-drag-row.rt-joined{margin-top:-8px}
+.item.rt-ss-bottom{border-bottom-left-radius:0;border-bottom-right-radius:0}
+.item.rt-ss-top{border-top-left-radius:0;border-top-right-radius:0;border-top:var(--hair) solid var(--sep-op)}
+/* The link button sits on the seam, over the thumbnail column: grey joins, orange separates. */
+.rt-link{
+  position:absolute;left:37px;top:-4px;transform:translate(-50%,-50%);z-index:3;
+  width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px;
+  background:var(--bg);color:var(--label-3);border:1px solid var(--surface-3);
+  transition:background var(--fast),color var(--fast),border-color var(--fast)
+}
+.rt-link::before{content:'';position:absolute;inset:-8px}
+.rt-link:active{background:var(--acc-soft);color:var(--acc)}
+.routine-drag-row.rt-joined .rt-link{top:0}
+.rt-link.on{background:var(--acc);color:var(--on-acc);border-color:var(--acc)}
+@media (hover:hover){
+  .rt-link:hover{color:var(--acc);border-color:var(--acc-line);background:var(--acc-soft)}
+  .rt-link.on:hover{background:var(--red);border-color:var(--red);color:#fff}
+}
+.routine-list.is-reordering .rt-link{visibility:hidden}

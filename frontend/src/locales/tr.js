@@ -1257,4 +1257,8 @@ export default {
   '{0} training days · {1} sets · {2} per week': '{0} antrenman günü · {1} set · haftada {2}',
   'Nothing scheduled yet — tap a day below to plan your week.': 'Henüz planlanmış bir şey yok — haftanı planlamak için aşağıdan bir güne dokun.',
   '{0} set': '{0} set',
+  'Separate from exercise above': 'Üstteki egzersizden ayır',
+  'no rest between them': 'aralarında dinlenme yok',
+  'Tap the link between two exercises to superset them; tap an orange link to separate them. Use ⋮ to edit, move or remove.': 'Süperset yapmak için iki egzersiz arasındaki halkaya dokun; ayırmak için turuncu halkaya dokun. Düzenlemek, taşımak veya kaldırmak için ⋮.',
+  'Routine settings': 'Rutin ayarları',
 }

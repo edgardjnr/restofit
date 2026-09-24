@@ -8,7 +8,7 @@ import { uid } from '../lib/format.js'
 import { t, exerciseNameFor } from '../lib/i18n.js'
 import { supersetUnits, moveSupersetUnit, cleanupSg, exLine, defaultConfig } from '../lib/history.js'
 import { Thumb } from '../components/Media.jsx'
-import { glyphPicker, exercisePicker, exConfigSheet, confirmSheet } from '../sheets.jsx'
+import { glyphPicker, exercisePicker, exConfigSheet, confirmSheet, menuSheet } from '../sheets.jsx'
 import Icon from '../components/Icon.jsx'
 import { glyphOf } from '../lib/glyphs.js'
 import { Button, Row, SelectRow, Switch } from '../components/ui.jsx'
@@ -17,6 +17,7 @@ import { copyRoutine } from '../lib/routines.js'
 import { POLICIES_FOR, POLICY_NAME, POLICY_DESC } from '../lib/progression.js'
 import BodyMap from '../components/BodyMap.jsx'
 import { loadOfRoutine, rankOf, MUSCLE_NAME } from '../lib/muscles.js'
+import { routineStats, statLine } from '../lib/plan-summary.js'
 
 export const ROUTINE_LONG_PRESS_MS = 380
 export const ROUTINE_DRAG_SLOP = 8
@@ -333,87 +334,124 @@ export default function RoutineEdit() {
   const toggleLink = i => edit(ex => {
     if (i < 1) return
     const cur = ex[i], prev = ex[i - 1]
-    if (cur.sg && prev.sg && cur.sg === prev.sg) delete cur.sg
-    else { const gid = prev.sg || ('sg' + uid()); prev.sg = gid; cur.sg = gid }
+    if (cur.sg && prev.sg && cur.sg === prev.sg) {
+      // Split at this seam: the exercises from here down keep going together under a new id,
+      // so separating B from A in A+B+C leaves B+C a superset instead of undoing all of it.
+      const old = cur.sg, tail = 'sg' + uid()
+      for (let k = i; k < ex.length && ex[k].sg === old; k++) ex[k].sg = tail
+    } else { const gid = prev.sg || ('sg' + uid()); prev.sg = gid; cur.sg = gid }
     cleanupSg(ex)
   })
 
   const units = supersetUnits(r.ex)
   const unitIndex = new Map(units.flatMap((unit, index) => unit.map(i => [i, index])))
-  const unitFirst = new Set(units.filter(u => u.length > 1).map(u => u[0]))
   const inSS = new Set(units.filter(u => u.length > 1).flat())
   const profile = activeProfile(S)
   const missingCount = profile ? r.ex.filter(e => !exAvailable(S, exOr(e.id))).length : 0
 
+  const removeAt = i => edit(x => { x.splice(i, 1); cleanupSg(x) })
+  const configure = (i, ex) => exConfigSheet(ex, r.ex[i], cfg => edit(x => { x[i] = { id: x[i].id, sg: x[i].sg, ...cfg } }), () => removeAt(i), r)
+  const linkedAbove = i => i > 0 && !!r.ex[i].sg && r.ex[i - 1].sg === r.ex[i].sg
+  // Everything a row does besides opening lives behind its ⋮, so the list reads as a list.
+  // Moving a superset member still moves its whole unit, as the arrows did (#142).
+  const rowMenu = (i, ex) => menuSheet({
+    title: exerciseNameFor(ex), subtitle: exLine(r.ex[i], S.unit),
+    items: [
+      { icon: 'pencil', label: t('Edit'), onClick: () => configure(i, ex) },
+      { icon: 'chevronUp', label: t('Move up'), disabled: unitIndex.get(i) === 0, onClick: () => move(i, -1) },
+      { icon: 'chevronDown', label: t('Move down'), disabled: unitIndex.get(i) === units.length - 1, onClick: () => move(i, 1) },
+      i > 0 && { icon: 'link', label: linkedAbove(i) ? t('Separate from exercise above') : t('Superset with exercise above'), onClick: () => toggleLink(i) },
+      { icon: 'trash', label: t('Remove from routine'), danger: true, onClick: () => removeAt(i) },
+    ],
+  })
+  const deleteRoutine = () => confirmSheet({
+    title: t('Delete routine?'), message: t('“{0}” and its exercises will be removed.', r.name), confirmText: t('Delete'), danger: true,
+    onConfirm: () => {
+      update(s => {
+        s.routines = s.routines.filter(x => x.id !== id)
+        // A weekday holds a routine-id list: pull the deleted id from each day, drop the
+        // key when it empties (never store []). dayPlan stays scalar.
+        Object.keys(s.week).forEach(k => {
+          const next = [].concat(s.week[k]).filter(rid => rid !== id)
+          if (next.length) s.week[k] = next; else delete s.week[k]
+        })
+        Object.keys(s.dayPlan).forEach(k => { if (s.dayPlan[k] === id) delete s.dayPlan[k] })
+      })
+      nav('/plan')
+    }
+  })
+  // Copy and Delete are once-in-a-while actions: they left the foot of the screen for the ⋮.
+  const routineMenu = () => menuSheet({
+    title: r.name,
+    items: [
+      { icon: 'clipboard', label: t('Copy routine'), onClick: () => {
+        const copy = copyRoutine(r, t('Copy'))
+        update(s => { s.routines.push(copy) })
+        nav('/plan/r/' + copy.id)
+      } },
+      { icon: 'trash', label: t('Delete routine'), danger: true, onClick: deleteRoutine },
+    ],
+  })
+
   return <div className="narrow">
-    <div className="hdr">
+    <div className="hdr rt-hdr">
       <button className="iconbtn" onClick={() => nav('/plan')} aria-label={t('Plan')}><Icon name="chevronLeft" /></button>
-      <div style={{ flex: 1, margin: '0 12px' }}>
-        <input className="input" defaultValue={r.name} style={{ fontWeight: 600, fontSize: 20, letterSpacing: '-.021em' }}
-          onChange={e => update(s => { s.routines.find(x => x.id === id).name = e.target.value.trim() || t('Routine') })} />
-      </div>
-      <button className="iconbtn" aria-label={t('Pick an icon')} onClick={() => glyphPicker(r.emoji, g => update(s => { s.routines.find(x => x.id === id).emoji = g }))}><Icon name={glyphOf(r.emoji)} /></button>
+      <input className="rt-name" defaultValue={r.name} aria-label={t('Routine')}
+        onChange={e => update(s => { s.routines.find(x => x.id === id).name = e.target.value.trim() || t('Routine') })} />
+      <button className="iconbtn rt-glyph" aria-label={t('Pick an icon')} onClick={() => glyphPicker(r.emoji, g => update(s => { s.routines.find(x => x.id === id).emoji = g }))}><Icon name={glyphOf(r.emoji)} /></button>
+      <button className="iconbtn" aria-label={t('More')} title={t('More')} onClick={routineMenu}><Icon name="more" /></button>
     </div>
+    <div className="rt-sum">{statLine(routineStats(r))}</div>
 
-    <div className="sect-b" style={{ marginBottom: 16 }}>
-      <SelectRow icon="chartLine" title={t('Progression')} sheetTitle={t('Progression')}
-        value={r.prog || 'linear'} onChange={v => update(s => { s.routines.find(x => x.id === id).prog = v })}
-        options={POLICIES_FOR.reps.map(p => ({ value: p, label: t(POLICY_NAME[p]), subtitle: t(POLICY_DESC[p]) }))} />
-      <Row icon="pause" iconTint="var(--orange)" title={t('Exclude from automatic progression')}
-        subtitle={t('Use for planned deloads. Workouts stay in history and statistics.')}>
-        <Switch checked={r.excludeFromProgression === true} onChange={v => update(s => {
-          const routine = s.routines.find(x => x.id === id)
-          if (v) routine.excludeFromProgression = true
-          else delete routine.excludeFromProgression
-        })} />
-      </Row>
-    </div>
-    <div className="small dim" style={{ margin: '-10px 2px 16px' }}>
-      {r.excludeFromProgression
-        ? t('The next regular target continues from the last included workout.')
-        : t('Applies to every exercise in this routine that does not set its own rule.')}
-    </div>
-
-    {missingCount > 0 && <div className="card" style={{ marginBottom: 16, borderColor: 'var(--orange)' }}>
+    {missingCount > 0 && <div className="card" style={{ marginTop: 12, borderColor: 'var(--orange)' }}>
       <div className="row" style={{ gap: 8, alignItems: 'center' }}>
         <Icon name="warning" style={{ color: 'var(--orange)' }} />
         <div className="small">{t('{0} of {1} exercises need equipment outside "{2}"', missingCount, r.ex.length, profile.name)}</div>
       </div>
     </div>}
 
+    <h4 className="sec">{t('Exercises')}</h4>
     {r.ex.length ? <div ref={reorder.listRef} onClickCapture={reorder.onClickCapture}
       className={'list routine-list' + (reorder.drag ? ' is-reordering' : '')}>{r.ex.map((e, i) => {
       // An unresolvable id is shown rather than skipped — hiding it left an entry you
       // could neither see nor delete, but that still turned up in the workout.
       const ex = exOr(e.id)
       const noEquip = profile && !exAvailable(S, ex)
-      const linkedPrev = i > 0 && e.sg && r.ex[i - 1].sg === e.sg
+      const linked = linkedAbove(i)
+      const linkedBelow = !!e.sg && r.ex[i + 1]?.sg === e.sg
       const isDragging = reorder.drag && i >= reorder.drag.first && i <= reorder.drag.last
       return <div key={i} data-routine-row data-ex-index={i}
-        className={'routine-drag-row' + (isDragging ? ' is-dragging' : '')}
+        className={'routine-drag-row' + (isDragging ? ' is-dragging' : '') + (linked ? ' rt-joined' : '')}
         style={isDragging ? { transform: `translate3d(0, ${reorder.drag.deltaY}px, 0)` } : undefined}>
-        {unitFirst.has(i) && <div className="ss-label"><Icon name="link" />{t('Superset')}</div>}
-        <SwipeToDelete className={'item' + (inSS.has(i) ? ' in-ss' : '')}
+        {inSS.has(i) && !linked && <div className="ss-label rt-ss-label"><Icon name="link" />{t('Superset')}<span>· {t('no rest between them')}</span></div>}
+        {/* The link sits on the seam between two exercises: grey joins this one to the one
+            above, orange (inside a superset) separates them. */}
+        {i > 0 && <button className={'rt-link' + (linked ? ' on' : '')} onClick={() => toggleLink(i)}
+          aria-pressed={linked} aria-label={linked ? t('Separate from exercise above') : t('Superset with exercise above')}
+          title={linked ? t('Separate from exercise above') : t('Superset with exercise above')}><Icon name="link" /></button>}
+        <SwipeToDelete className={'item' + (inSS.has(i) ? ' in-ss' : '') + (linked ? ' rt-ss-top' : '') + (linkedBelow ? ' rt-ss-bottom' : '')}
           deleteLabel={t('Remove from routine')}
-          onDelete={() => edit(x => { x.splice(i, 1); cleanupSg(x) })}
-          onClick={() => {
-            exConfigSheet(ex, e, cfg => edit(x => { x[i] = { id: x[i].id, sg: x[i].sg, ...cfg } }), () => edit(x => { x.splice(i, 1); cleanupSg(x) }), r)
-          }}>
+          onDelete={() => removeAt(i)}
+          onClick={() => configure(i, ex)}>
           <Thumb ex={ex} />
-          <div className="grow"><div className="tt capitalize">{exerciseNameFor(ex)}</div><div className="ss">{exLine(e, S.unit)}</div>
+          <div className="grow"><div className="tt capitalize">{exerciseNameFor(ex)}</div><div className="ss rt-line">{exLine(e, S.unit)}</div>
             {e.note && <div className="small dim" style={{ marginTop: 2 }}>{e.note}</div>}</div>
           {noEquip && <span className="tag" style={{ color: 'var(--orange)', borderColor: 'var(--orange)' }} title={t('Needs {0} — not in your active profile', t(ex.eq))}><Icon name="warning" /></span>}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 'none', alignItems: 'center' }}>
-            {i > 0 && <button className={'iconbtn' + (linkedPrev ? ' on-ss' : '')} title={t('Superset with exercise above')} style={{ width: 32, height: 28, borderRadius: 8, fontSize: 15 }} onClick={ev => { ev.stopPropagation(); toggleLink(i) }}><Icon name="link" /></button>}
-            <div style={{ display: 'flex', gap: 2 }}>
-              <button className="iconbtn" aria-label={t('Move up')} title={t('Move up')} disabled={unitIndex.get(i) === 0} style={{ width: 28, height: 24, borderRadius: 7, fontSize: 12 }} onClick={ev => { ev.stopPropagation(); move(i, -1) }}><Icon name="chevronUp" /></button>
-              <button className="iconbtn" aria-label={t('Move down')} title={t('Move down')} disabled={unitIndex.get(i) === units.length - 1} style={{ width: 28, height: 24, borderRadius: 7, fontSize: 12 }} onClick={ev => { ev.stopPropagation(); move(i, 1) }}><Icon name="chevronDown" /></button>
-            </div>
-          </div>
+          <button className="iconbtn rt-more" aria-label={t('More')} title={t('More')} onClick={ev => { ev.stopPropagation(); rowMenu(i, ex) }}><Icon name="more" /></button>
         </SwipeToDelete>
       </div>
     })}{reorder.drag && <div className="routine-drop-indicator" data-testid="routine-drop-indicator"
       aria-hidden="true" style={{ top: `${reorder.drag.indicatorTop}px` }} />}</div> : <div className="empty"><div className="ico"><Icon name="dumbbell" /></div>{t('No exercises yet — add your first one.')}</div>}
+
+    {r.ex.length > 1 && <div className="small dim row rt-hint"><Icon name="link" />{t('Tap the link between two exercises to superset them; tap an orange link to separate them. Use ⋮ to edit, move or remove.')}</div>}
+    <Button variant="primary" style={{ marginTop: 12 }} onClick={() => exercisePicker((ex, quick) => {
+      if (quick) {
+        edit(x => x.push({ id: ex.id, ...defaultConfig(ex.id) }))
+        toast(t('“{0}” added to {1}', exerciseNameFor(ex), r.name))
+      } else {
+        exConfigSheet(ex, null, cfg => edit(x => { x.push({ id: ex.id, ...cfg }) }), null, r)
+      }
+    })} icon="plus">{t('Add exercise')}</Button>
 
     {/* Coverage of the routine as planned, so a gap shows up while you're building it
         rather than after a month of training around it. */}
@@ -429,37 +467,25 @@ export default function RoutineEdit() {
       </div>
     })()}
 
-    <div className="small dim row" style={{ margin: '10px 2px', gap: 5 }}><Icon name="link" style={{ fontSize: 13 }} />{t('Tap the link button on an exercise to superset it with the one above — you’ll do them back-to-back.')}</div>
-    <Button variant="primary" onClick={() => exercisePicker((ex, quick) => {
-      if (quick) {
-        edit(x => x.push({ id: ex.id, ...defaultConfig(ex.id) }))
-        toast(t('“{0}” added to {1}', exerciseNameFor(ex), r.name))
-      } else {
-        exConfigSheet(ex, null, cfg => edit(x => { x.push({ id: ex.id, ...cfg }) }), null, r)
-      }
-    })} icon="plus">{t('Add exercise')}</Button>
-    <div style={{ height: 10 }} />
-    <Button onClick={() => {
-      const copy = copyRoutine(r, t('Copy'))
-      update(s => { s.routines.push(copy) })
-      nav('/plan/r/' + copy.id)
-    }}>{t('Copy routine')}</Button>
-    <div style={{ height: 10 }} />
-    <Button variant="danger" onClick={() => confirmSheet({
-      title: t('Delete routine?'), message: t('“{0}” and its exercises will be removed.', r.name), confirmText: t('Delete'), danger: true,
-      onConfirm: () => {
-        update(s => {
-          s.routines = s.routines.filter(x => x.id !== id)
-          // A weekday holds a routine-id list: pull the deleted id from each day, drop the
-          // key when it empties (never store []). dayPlan stays scalar.
-          Object.keys(s.week).forEach(k => {
-            const next = [].concat(s.week[k]).filter(rid => rid !== id)
-            if (next.length) s.week[k] = next; else delete s.week[k]
-          })
-          Object.keys(s.dayPlan).forEach(k => { if (s.dayPlan[k] === id) delete s.dayPlan[k] })
-        })
-        nav('/plan')
-      }
-    })}>{t('Delete routine')}</Button>
+    {/* The routine-wide rule is set once and rarely touched, so it sits under the exercises. */}
+    <h4 className="sec">{t('Routine settings')}</h4>
+    <div className="sect-b">
+      <SelectRow icon="chartLine" title={t('Progression')} sheetTitle={t('Progression')}
+        value={r.prog || 'linear'} onChange={v => update(s => { s.routines.find(x => x.id === id).prog = v })}
+        options={POLICIES_FOR.reps.map(p => ({ value: p, label: t(POLICY_NAME[p]), subtitle: t(POLICY_DESC[p]) }))} />
+      <Row icon="pause" iconTint="var(--orange)" title={t('Exclude from automatic progression')}
+        subtitle={t('Use for planned deloads. Workouts stay in history and statistics.')}>
+        <Switch checked={r.excludeFromProgression === true} onChange={v => update(s => {
+          const routine = s.routines.find(x => x.id === id)
+          if (v) routine.excludeFromProgression = true
+          else delete routine.excludeFromProgression
+        })} />
+      </Row>
+    </div>
+    <div className="small dim" style={{ margin: '8px 2px 0' }}>
+      {r.excludeFromProgression
+        ? t('The next regular target continues from the last included workout.')
+        : t('Applies to every exercise in this routine that does not set its own rule.')}
+    </div>
   </div>
 }

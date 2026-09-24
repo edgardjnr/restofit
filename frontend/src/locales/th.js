@@ -1268,4 +1268,8 @@ export default {
   '{0} training days · {1} sets · {2} per week': 'ฝึก {0} วัน · {1} เซ็ต · {2} ต่อสัปดาห์',
   'Nothing scheduled yet — tap a day below to plan your week.': 'ยังไม่มีอะไรในตาราง — แตะวันด้านล่างเพื่อวางแผนสัปดาห์ของคุณ',
   '{0} set': '{0} เซ็ต',
+  'Separate from exercise above': 'แยกจากท่าด้านบน',
+  'no rest between them': 'ไม่พักระหว่างท่า',
+  'Tap the link between two exercises to superset them; tap an orange link to separate them. Use ⋮ to edit, move or remove.': 'แตะลิงก์ระหว่างสองท่าเพื่อทำซูเปอร์เซ็ต แตะลิงก์สีส้มเพื่อแยก ใช้ ⋮ เพื่อแก้ไข ย้าย หรือลบ',
+  'Routine settings': 'ตั้งค่ารูทีน',
 }

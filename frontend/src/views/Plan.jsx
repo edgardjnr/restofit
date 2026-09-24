@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
-import { DAYN, DAYS, weekOrder, weekStartOf, uid, exCount, routineCount, todayISO, fmtDur } from '../lib/format.js'
+import { DAYN, DAYS, weekOrder, weekStartOf, uid, routineCount, todayISO, fmtDur } from '../lib/format.js'
 import { t } from '../lib/i18n.js'
 import { dayAssignSheet, starterPlanSheet, planToolsSheet, startFlow } from '../sheets.jsx'
 import Icon from '../components/Icon.jsx'
@@ -10,11 +10,7 @@ import { glyphOf, DEFAULT_GLYPH } from '../lib/glyphs.js'
 import { DEMO } from '../lib/demo.js'
 import { MOBILE } from '../lib/mobile.js'
 import { coachAvailable } from '../lib/coach.js'
-import { routineStats, sessionStats, weekSummary, upcomingSession, shortDay } from '../lib/plan-summary.js'
-
-const setCount = n => t(n === 1 ? '{0} set' : '{0} sets', n)
-// "6 exercises · 20 sets · ~55 min" — the one technical line a routine or a session gets.
-const statLine = s => s.ex ? [exCount(s.ex), setCount(s.sets), '~' + t('{0} min', s.min)].join(' · ') : exCount(0)
+import { routineStats, sessionStats, weekSummary, upcomingSession, shortDay, statLine } from '../lib/plan-summary.js'
 
 export default function Plan() {
   const nav = useNavigate()

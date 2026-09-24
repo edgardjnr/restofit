@@ -1257,4 +1257,8 @@ export default {
   '{0} training days · {1} sets · {2} per week': '训练 {0} 天 · {1} 组 · 每周 {2}',
   'Nothing scheduled yet — tap a day below to plan your week.': '还没有安排 — 点下方的某一天来规划你的一周。',
   '{0} set': '{0} 组',
+  'Separate from exercise above': '与上一个动作分开',
+  'no rest between them': '中间不休息',
+  'Tap the link between two exercises to superset them; tap an orange link to separate them. Use ⋮ to edit, move or remove.': '点两个动作之间的链接把它们组成超级组；点橙色链接可拆开。用 ⋮ 编辑、移动或删除。',
+  'Routine settings': '训练计划设置',
 }

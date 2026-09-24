@@ -14,10 +14,10 @@ import { buildPlanBundle, parsePlan } from '../lib/plan-share.js'
 
 const cssSource = readFileSync(resolve(process.cwd(), 'src/index.css'), 'utf8')
 
-const mocks = vi.hoisted(() => ({ exConfigSheet: vi.fn() }))
+const mocks = vi.hoisted(() => ({ exConfigSheet: vi.fn(), menuSheet: vi.fn() }))
 vi.mock('../lib/api.js', () => ({ api: vi.fn(() => Promise.resolve({})) }))
 vi.mock('../sheets.jsx', () => ({
-  glyphPicker: vi.fn(), exercisePicker: vi.fn(), exConfigSheet: mocks.exConfigSheet, confirmSheet: vi.fn()
+  glyphPicker: vi.fn(), exercisePicker: vi.fn(), exConfigSheet: mocks.exConfigSheet, confirmSheet: vi.fn(), menuSheet: mocks.menuSheet
 }))
 vi.mock('../components/Media.jsx', () => ({ Thumb: () => null }))
 vi.mock('../components/BodyMap.jsx', () => ({ default: () => null }))
@@ -55,29 +55,19 @@ function itemFor(name) {
   return [...container.querySelectorAll('.item')].find(item => item.textContent.includes(name))
 }
 
+// Move up / Move down live in each row's ⋮ menu. This opens it and hands back the menu item
+// as a stand-in for the old inline button: its label, whether it is disabled, and a click
+// that does what tapping a menu row does (nothing when disabled).
 function moveButton(name, direction) {
-  return itemFor(name).querySelector(`button[aria-label="${direction}"]`)
-}
-
-function pointerActivateArea(button) {
-  // Model browser hit-testing: pointer-events:none removes the disabled button
-  // from the target chain, exposing the clickable routine row underneath.
-  const disabledRule = cssSource.match(/\.iconbtn:disabled\s*\{[^}]*\}/)?.[0] || ''
-  const target = /pointer-events\s*:\s*none/.test(disabledRule)
-    ? button.closest('.item')
-    : button
-  act(() => {
-    target.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
-    target.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
-    if (!(target instanceof HTMLButtonElement && target.disabled)) {
-      target.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-    }
-  })
+  act(() => itemFor(name).querySelector('button.rt-more').click())
+  const item = mocks.menuSheet.mock.calls.at(-1)[0].items.find(it => it && it.label === direction)
+  return { label: item.label, disabled: !!item.disabled, click: () => { if (!item.disabled) item.onClick() } }
 }
 
 beforeEach(() => {
   localStorage.clear()
   mocks.exConfigSheet.mockClear()
+  mocks.menuSheet.mockClear()
   _setLangState('en', null, null, null)
   root = null
   container = null
@@ -160,38 +150,33 @@ describe('routine move controls', () => {
     expect(localStorage.getItem('gym_state_v1')).toBeNull()
   })
 
-  it('keeps pointer activation in both disabled boundary areas isolated from the routine row', () => {
+  it('opening a row menu neither opens the exercise config nor changes the routine', () => {
     setRoutine([
       entry('c1', 10, 'orphan'),
       entry('c2', 20)
     ])
     renderRoutine()
     const before = useStore.getState().S
-    const firstUp = moveButton('c1', 'Move up')
-    const lastDown = moveButton('c2', 'Move down')
+    act(() => itemFor('c1').querySelector('button.rt-more').click())
 
-    expect(firstUp.disabled).toBe(true)
-    expect(lastDown.disabled).toBe(true)
-    pointerActivateArea(firstUp)
-    pointerActivateArea(lastDown)
-
+    expect(mocks.menuSheet).toHaveBeenCalledTimes(1)
     expect(mocks.exConfigSheet).not.toHaveBeenCalled()
     expect(useStore.getState().S).toBe(before)
-    expect(useStore.getState().S.routines[0].ex[0].sg).toBe('orphan')
     expect(localStorage.getItem('gym_state_v1')).toBeNull()
   })
 
-  it('uses localized accessible names and titles, retains button focus, and does not open config', () => {
+  it('uses localized labels in the row menu and does not open config', () => {
     _setLangState('de', de, null, null)
     setRoutine([entry('c1', 10), entry('c2', 20)])
     renderRoutine()
+    const more = itemFor('c2').querySelector('button.rt-more')
+    expect(more.getAttribute('aria-label')).toBe(de['More'])
     const button = moveButton('c2', 'Nach oben')
 
-    expect(button.title).toBe('Nach oben')
-    button.focus()
+    expect(button.label).toBe('Nach oben')
     act(() => button.click())
 
-    expect(document.activeElement?.tagName).toBe('BUTTON')
+    expect(useStore.getState().S.routines[0].ex.map(e => e.id)).toEqual(['c2', 'c1'])
     expect(mocks.exConfigSheet).not.toHaveBeenCalled()
   })
 
@@ -210,6 +195,33 @@ describe('routine move controls', () => {
       entry('c1', 10, 'g'),
       entry('c2', 20, 'g')
     ])
+  })
+})
+
+describe('superset link between rows', () => {
+  const link = name => itemFor(name).closest('[data-routine-row]').querySelector('button.rt-link')
+
+  it('joins an exercise to the one above, and the orange link separates them again', () => {
+    setRoutine([entry('c1', 10), entry('c2', 20), entry('c3', 30)])
+    renderRoutine()
+    expect(itemFor('c1').closest('[data-routine-row]').querySelector('button.rt-link')).toBe(null)
+
+    act(() => link('c2').click())
+    let ex = useStore.getState().S.routines[0].ex
+    expect(ex[0].sg).toBeTruthy()
+    expect(ex[1].sg).toBe(ex[0].sg)
+    expect(link('c2').getAttribute('aria-pressed')).toBe('true')
+
+    act(() => link('c3').click())
+    ex = useStore.getState().S.routines[0].ex
+    expect(ex[2].sg).toBe(ex[0].sg)
+
+    act(() => link('c2').click())
+    ex = useStore.getState().S.routines[0].ex
+    expect(ex[0].sg).toBeUndefined()
+    expect(ex[1].sg).toBeTruthy()
+    expect(ex[2].sg).toBe(ex[1].sg)
+    expect(mocks.exConfigSheet).not.toHaveBeenCalled()
   })
 })
 

@@ -1257,4 +1257,8 @@ export default {
   '{0} training days · {1} sets · {2} per week': '{0} jours d’entraînement · {1} séries · {2} par semaine',
   'Nothing scheduled yet — tap a day below to plan your week.': 'Rien de prévu pour l’instant — touche un jour ci-dessous pour planifier ta semaine.',
   '{0} set': '{0} série',
+  'Separate from exercise above': 'Séparer de l’exercice du dessus',
+  'no rest between them': 'sans repos entre eux',
+  'Tap the link between two exercises to superset them; tap an orange link to separate them. Use ⋮ to edit, move or remove.': 'Touche le maillon entre deux exercices pour en faire une superserie ; touche un maillon orange pour les séparer. ⋮ pour modifier, déplacer ou retirer.',
+  'Routine settings': 'Réglages de la routine',
 }

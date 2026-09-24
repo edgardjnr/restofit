@@ -1257,4 +1257,8 @@ export default {
   '{0} training days · {1} sets · {2} per week': 'Дней тренировок: {0} · подходов: {1} · {2} в неделю',
   'Nothing scheduled yet — tap a day below to plan your week.': 'Пока ничего не запланировано — нажмите на день ниже, чтобы спланировать неделю.',
   '{0} set': 'подходов: {0}',
+  'Separate from exercise above': 'Отделить от упражнения выше',
+  'no rest between them': 'без отдыха между ними',
+  'Tap the link between two exercises to superset them; tap an orange link to separate them. Use ⋮ to edit, move or remove.': 'Нажмите на звено между двумя упражнениями, чтобы объединить их в суперсет; нажмите на оранжевое, чтобы разделить. ⋮ — изменить, переместить или удалить.',
+  'Routine settings': 'Настройки программы',
 }

@@ -1260,4 +1260,8 @@ export default {
   '{0} training days · {1} sets · {2} per week': '{0} edzésnap · {1} sorozat · heti {2}',
   'Nothing scheduled yet — tap a day below to plan your week.': 'Még nincs semmi betervezve — koppints lent egy napra a heted megtervezéséhez.',
   '{0} set': '{0} sorozat',
+  'Separate from exercise above': 'Leválasztás a fenti gyakorlatról',
+  'no rest between them': 'köztük nincs pihenő',
+  'Tap the link between two exercises to superset them; tap an orange link to separate them. Use ⋮ to edit, move or remove.': 'Koppints a két gyakorlat közötti láncszemre a szuperszetthez; a narancssárgára koppintva szétválasztod őket. A ⋮ alatt szerkesztés, áthelyezés, törlés.',
+  'Routine settings': 'Rutin beállításai',
 }

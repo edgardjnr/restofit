@@ -1257,4 +1257,8 @@ export default {
   '{0} training days · {1} sets · {2} per week': '운동일 {0}일 · {1}세트 · 주당 {2}',
   'Nothing scheduled yet — tap a day below to plan your week.': '아직 계획된 운동이 없어요 — 아래에서 요일을 눌러 한 주를 계획하세요.',
   '{0} set': '{0}세트',
+  'Separate from exercise above': '위 운동과 분리',
+  'no rest between them': '사이에 휴식 없음',
+  'Tap the link between two exercises to superset them; tap an orange link to separate them. Use ⋮ to edit, move or remove.': '두 운동 사이의 링크를 눌러 슈퍼세트로 묶고, 주황색 링크를 누르면 분리돼요. ⋮에서 편집·이동·삭제할 수 있어요.',
+  'Routine settings': '루틴 설정',
 }
