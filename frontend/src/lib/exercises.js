@@ -135,6 +135,12 @@ const GIF_BASE = ENV.VITE_GIF_BASE || 'gif/'
 export const imgSrc = ex => IMG_BASE + ex.img
 export const gifSrc = ex => GIF_BASE + ex.gif
 
+// Our own ATLAS-01 demo videos (public/atlas/<id>.mp4), shipped inside the build so they work on
+// every instance and in the mobile app. An exercise listed here plays its mp4 instead of the GIF;
+// the still image stays the fallback and the thumbnail. Add the id here when a new video lands.
+export const ATLAS_VIDEO_IDS = new Set(['0001', '1714'])
+export const videoSrc = ex => (ex?.id && ATLAS_VIDEO_IDS.has(ex.id) ? 'atlas/' + ex.id + '.mp4' : null)
+
 // Cardio exercises log time + speed instead of weight × reps.
 export const isCardio = idOrEx => (typeof idOrEx === 'string' ? EXIDX[idOrEx] : idOrEx)?.bp === 'cardio'
 

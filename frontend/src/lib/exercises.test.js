@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { matchExercise, normalizeStr } from './exercises.js'
+import { existsSync } from 'node:fs'
+import { matchExercise, normalizeStr, videoSrc, ATLAS_VIDEO_IDS, EXIDX } from './exercises.js'
 import { _setLangState } from './i18n-core.js'
 
 describe('normalizeStr', () => {
@@ -117,5 +118,28 @@ describe('matchExercise', () => {
     _setLangState('en', null, null, null)
     expect(matchExercise(benchPress, 'supino')).toBe(false)
     expect(matchExercise(benchPress, 'bench')).toBe(true)
+  })
+})
+
+describe('videoSrc', () => {
+  it('points ATLAS-01 exercises at their bundled mp4', () => {
+    expect(videoSrc({ id: '0001' })).toBe('atlas/0001.mp4')
+    expect(videoSrc({ id: '1714' })).toBe('atlas/1714.mp4')
+  })
+
+  it('returns null for exercises without a video and for custom ones', () => {
+    expect(videoSrc({ id: '0025' })).toBe(null)
+    expect(videoSrc({ n: 'custom' })).toBe(null)
+    expect(videoSrc(undefined)).toBe(null)
+  })
+
+  it('only lists ids that exist in the exercise library', () => {
+    for (const id of ATLAS_VIDEO_IDS) expect(EXIDX[id]).toBeTruthy()
+  })
+
+  it('has an mp4 in public/atlas for every listed id', () => {
+    for (const id of ATLAS_VIDEO_IDS) {
+      expect(existsSync(new URL(`../../public/atlas/${id}.mp4`, import.meta.url))).toBe(true)
+    }
   })
 })

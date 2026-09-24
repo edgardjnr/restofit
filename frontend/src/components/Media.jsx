@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { imgSrc, gifSrc } from '../lib/exercises.js'
+import { useEffect, useRef, useState } from 'react'
+import { imgSrc, gifSrc, videoSrc } from '../lib/exercises.js'
 import { useStore } from '../store/useStore.js'
 import { t, exerciseNameFor } from '../lib/i18n.js'
 import Icon from './Icon.jsx'
@@ -21,7 +21,16 @@ export default function Media({ ex, id, compact, minimizable }) {
   const [failed, setFailed] = useState(null)
   const gifSize = useStore(s => s.S.gifSize)
   const update = useStore(s => s.update)
-  if (!ex.gif) return null
+  const videoRef = useRef(null)
+  const video = videoSrc(ex)
+  // An ATLAS-01 video pauses in place on tap instead of swapping to the still.
+  useEffect(() => {
+    const v = videoRef.current
+    if (!v) return
+    if (playing) v.play()?.catch(() => {})
+    else v.pause()
+  }, [playing])
+  if (!ex.gif && !video) return null
   if (minimizable && gifSize === 'off') return null
   const mini = minimizable && gifSize === 'mini'
   const toggleSize = e => { e.stopPropagation(); update(s => { s.gifSize = mini ? 'full' : 'mini' }) }
@@ -35,7 +44,10 @@ export default function Media({ ex, id, compact, minimizable }) {
     <div className={'exmedia' + (compact ? ' compact' : '') + (mini ? ' mini' : '') + (failed === 'all' ? ' broken' : '')} id={id} onClick={onTap}>
       {failed === 'all'
         ? <div className="exmedia-x"><Icon name="dumbbell" /></div>
-        : <img decoding="async" draggable={false} src={showGif ? gifSrc(ex) : imgSrc(ex)} alt={exerciseNameFor(ex)} onError={onError} />}
+        : video && failed == null
+          ? <video ref={videoRef} src={video} autoPlay loop muted playsInline disablePictureInPicture
+              aria-label={exerciseNameFor(ex)} onError={() => setFailed('gif')} />
+          : <img decoding="async" draggable={false} src={showGif ? gifSrc(ex) : imgSrc(ex)} alt={exerciseNameFor(ex)} onError={onError} />}
       {minimizable && (
         <button className="giftoggle" onClick={toggleSize}>
           <Icon name={mini ? 'expand' : 'minimize'} />{mini ? t('Expand') : t('Minimize')}
