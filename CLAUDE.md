@@ -47,20 +47,13 @@ idioma padrão. O resto deste arquivo descreve o openGym original e continua val
   - **Não clone em pasta nova** no servidor: dados e `.env` ficam na instalação atual.
 - Conferir depois do deploy, sem cache:
   `curl -sI "https://restofit.restaurantepro.com.br/?v=$RANDOM" | grep -i last-modified` deve
-  mostrar a hora do novo build, e `https://restofit.restaurantepro.com.br/atlas/0001.mp4` deve
-  responder 200 `video/mp4` (enquanto o container é o antigo, responde 302).
+  mostrar a hora do novo build.
 
 ### Mídia dos exercícios
-- Ordem no app (`components/Media.jsx`): **vídeo do ATLAS-01** (se o id estiver em
-  `ATLAS_VIDEO_IDS`) → **GIF do dataset** → imagem parada → ícone.
-- Miniatura (`Thumb`): capa WebP do vídeo quando existir; senão a imagem do dataset.
-- Vídeos próprios: `frontend/public/atlas/<id>.mp4` + capa `frontend/public/atlas/<id>.webp`
-  (quadro de pico). Vão dentro do build (web e mobile). Lista em `ATLAS_VIDEO_IDS`
-  (`lib/exercises.js`); o teste em `lib/exercises.test.js` exige que todo id tenha `.mp4` e `.webp`.
-  Hoje: `0001` (3/4 sit-up) e `1714` (assisted prone rectus femoris stretch).
-- O service worker não intercepta `.mp4`, porque vídeo usa requisição parcial (206).
-- GIFs e imagens do dataset são © Gym visual (`NOTICE.md`): podem ser lidos para descrever um
-  exercício, mas nunca enviados a serviços de geração nem redistribuídos.
+- O app usa **os GIFs e imagens originais do dataset** (hasaneyldrm/exercises-dataset, © Gym visual,
+  ver `NOTICE.md`). Decisão do usuário (2026-09-24): o projeto de mídia própria com o personagem
+  ATLAS-01 (vídeos no Higgsfield, animações por quadros, HyperFrames) foi **abandonado e removido do
+  app**. Não reintroduza `public/atlas/` nem vídeos/animações próprias sem o usuário pedir.
 
 ### Rodar localmente
 - `cd frontend && npm run dev` (porta 5173; API em :3000). Sem `MEDIA_TARGET`, o dev server busca
@@ -69,22 +62,6 @@ idioma padrão. O resto deste arquivo descreve o openGym original e continua val
 - Existe um `C:\Users\Edgardjr\postcss.config.mjs` solto (pede Tailwind). O `vite.config.js` tem
   `css: { postcss: {} }` para não herdá-lo; não remova essa linha.
 - `npm test` roda os ~1590 testes do frontend; `npm run build` precisa passar antes de publicar.
-
-### Vídeos de exercício com o ATLAS-01 (Higgsfield)
-- Receita completa na skill do projeto **`atlas01-video`** (`.claude/skills/atlas01-video/`,
-  fora do git por causa do `.gitignore`): `SKILL.md`, `prompt-template.md`, `muscle-map.md`,
-  `muscle-refs.md`, `atlas01-system-prompt.md` e os scripts `ref_gif.py`, `frames.py`, `poster.py`.
-  Use a skill sempre que o pedido for um vídeo de exercício.
-- Decisões do usuário: `seedance_2_5`, **480p**, **4 s**, 1 repetição com loop, 16:9, sem áudio;
-  ler o GIF do app antes (o GIF manda sobre o texto `st`); vermelho só no músculo foco, só a parte
-  visível, acompanhando a contração; fluxo em duas etapas: imagem-mapa do músculo
-  (`gpt_image_2_5`, medium) e depois vídeo com 3 referências.
-- Referências fixas: `assets/imagem referencia/ATLAS-01.png` (personagem) e `ATLAS-01-RED.png`
-  (exemplo de cor: o bíceps está vermelho porque era o foco daquele exercício). Imagens-mapa em
-  `assets/imagem referencia/musculos/`.
-- Custo: ~12 créditos por vídeo + ~0,5 por imagem-mapa. Não refaça vídeos sem perguntar.
-- Para publicar um vídeo aprovado: siga o passo 8 da skill (mp4 + capa `poster.py` +
-  `ATLAS_VIDEO_IDS` + `npm test`), depois o fluxo de produção acima.
 
 ## Project layout
 
