@@ -128,6 +128,30 @@ test('compatible: a server that rejects JSON mode gets the same request once mor
   assert.ok(!('response_format' in f.calls[1].body));
 });
 
+test('compatible: a schema construct the server rejects (MiniMax) steps down to JSON mode, then to none', async () => {
+  const MINIMAX = { status: 400, body: { base_resp: {}, error: { message: 'invalid params, Mismatch type string with value array "at index 17485: mismatched type with value" (2013)' } } };
+  const schema = { type: 'object', properties: { after: { type: ['number', 'string'] } } };
+  // First downgrade is enough: schema → json_object.
+  const f1 = fakeFetch(n => n === 1 ? MINIMAX : ok({ choices: [{ message: { content: ANSWER }, finish_reason: 'stop' }] }));
+  const r1 = await compatible.invoke({ cfg: cfgCompat, prompt: 'P', system: 'S', schema, env: {}, model: 'MiniMax-M3', fetch: f1 });
+  assert.equal(r1.code, 0);
+  assert.equal(f1.calls.length, 2);
+  assert.equal(f1.calls[0].body.response_format.type, 'json_schema');
+  assert.deepEqual(f1.calls[1].body.response_format, { type: 'json_object' });
+  // JSON mode rejected as well: one more step, without response_format at all.
+  const f2 = fakeFetch(n => n <= 2 ? MINIMAX : ok({ choices: [{ message: { content: ANSWER }, finish_reason: 'stop' }] }));
+  const r2 = await compatible.invoke({ cfg: cfgCompat, prompt: 'P', system: 'S', schema, env: {}, model: 'MiniMax-M3', fetch: f2 });
+  assert.equal(r2.code, 0);
+  assert.equal(f2.calls.length, 3);
+  assert.ok(!('response_format' in f2.calls[2].body));
+  // Still rejected with nothing left to drop: the provider's own words come back, no loop.
+  const f3 = fakeFetch(() => MINIMAX);
+  const r3 = await compatible.invoke({ cfg: cfgCompat, prompt: 'P', system: 'S', schema, env: {}, model: 'MiniMax-M3', fetch: f3 });
+  assert.equal(r3.code, 1);
+  assert.equal(f3.calls.length, 3);
+  assert.match(r3.stderr, /^400 invalid params/);
+});
+
 test('a missing key is "missing", like an absent CLI — no request is made', async () => {
   const f = fakeFetch([]);
   const r = await anthropic.invoke({ cfg: {}, prompt: 'P', env: {}, fetch: f });

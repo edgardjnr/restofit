@@ -124,7 +124,7 @@ export function httpAdapter(spec) {
       if (!chosen) return { code: 1, text: '', stderr: `no model chosen for ${id} — pick one from the list the endpoint serves` };
 
       let body = spec.body({ model: chosen, prompt, system: system || null, schema: schema || null, maxTokens: MAX_OUTPUT_TOKENS });
-      let retriedWithoutJsonMode = false;
+      let jsonModeDowngrades = 0;
       let transientRetries = 0;
       for (;;) {
         let res;
@@ -146,10 +146,14 @@ export function httpAdapter(spec) {
             transientRetries++;
             continue;
           }
-          // Some OpenAI-compatible servers reject the JSON-mode flag outright. Once, without it.
-          if (res.status === 400 && spec.withoutJsonMode && !retriedWithoutJsonMode && /response_format|json_schema|json_object|json mode|structured/i.test(msg)) {
+          // Some OpenAI-compatible servers reject the JSON-mode flag outright, or accept it but not
+          // every schema construct (MiniMax: "invalid params, Mismatch type string with value array"
+          // on a union `type`). Step down one level at a time — schema → json_object → none —
+          // at most twice, and only while the body still carries a response_format.
+          if (res.status === 400 && spec.withoutJsonMode && jsonModeDowngrades < 2 && body.response_format
+            && /response_format|json_schema|json_object|json mode|structured|schema|mismatch(?:ed)? type/i.test(msg)) {
             body = spec.withoutJsonMode(body);
-            retriedWithoutJsonMode = true;
+            jsonModeDowngrades++;
             continue;
           }
           return { code: 1, text: '', stderr: `${res.status} ${trim(msg, 280)}` };
