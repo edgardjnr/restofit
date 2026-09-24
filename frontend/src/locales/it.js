@@ -1220,7 +1220,7 @@ export default {
   'You have the latest version.': 'Hai l’ultima versione.',
   'Could not check for updates — are you online?': 'Impossibile controllare — sei online?',
   'Get the Android app': 'Scarica l’app Android',
-  'Download the APK from opengym.duarte-santos.ch': 'Scarica l’APK da opengym.duarte-santos.ch',
+  'Download the APK from restofit.restaurantepro.com.br': 'Scarica l’APK da restofit.restaurantepro.com.br',
   'Releases are checked on gitlab.com. The download is verified against its checksum before the installer opens.': 'Le release vengono controllate su gitlab.com. Il download è verificato con il suo checksum prima di aprire l’installer.',
   'The web app updates together with your server. The Android app installs its own updates from here.': 'L’app web si aggiorna insieme al tuo server. L’app Android installa i suoi aggiornamenti da qui.',
   'Starting download…': 'Avvio del download…',

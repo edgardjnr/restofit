@@ -1220,7 +1220,7 @@ export default {
   'You have the latest version.': 'У вас последняя версия.',
   'Could not check for updates — are you online?': 'Не удалось проверить — вы онлайн?',
   'Get the Android app': 'Скачать приложение для Android',
-  'Download the APK from opengym.duarte-santos.ch': 'Скачайте APK с opengym.duarte-santos.ch',
+  'Download the APK from restofit.restaurantepro.com.br': 'Скачайте APK с restofit.restaurantepro.com.br',
   'Releases are checked on gitlab.com. The download is verified against its checksum before the installer opens.': 'Релизы проверяются на gitlab.com. Перед запуском установщика загрузка сверяется с контрольной суммой.',
   'The web app updates together with your server. The Android app installs its own updates from here.': 'Веб-приложение обновляется вместе с сервером. Приложение для Android устанавливает обновления отсюда.',
   'Starting download…': 'Начало загрузки…',

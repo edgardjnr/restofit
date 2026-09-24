@@ -423,8 +423,8 @@ export default function Settings() {
             accessory="chevron"
             onClick={() => (updateInfo?.hasUpdate ? onUpdateRowClick() : checkNow())} />
         : <Row icon="download" iconTint="var(--acc)" title={t('Get the Android app')}
-            subtitle={t('Download the APK from opengym.duarte-santos.ch')} accessory="chevron"
-            onClick={() => window.open('https://opengym.duarte-santos.ch/#download', '_blank', 'noopener')} />}
+            subtitle={t('Download the APK from restofit.restaurantepro.com.br')} accessory="chevron"
+            onClick={() => window.open('https://restofit.restaurantepro.com.br', '_blank', 'noopener')} />}
     </Section>}
 
     {/* The version, at the bottom of Settings — which is where the support template has been

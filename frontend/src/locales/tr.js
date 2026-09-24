@@ -1220,7 +1220,7 @@ export default {
   'You have the latest version.': 'En son sürüme sahipsin.',
   'Could not check for updates — are you online?': 'Denetlenemedi — çevrimiçi misin?',
   'Get the Android app': 'Android uygulamasını al',
-  'Download the APK from opengym.duarte-santos.ch': 'APK’yı opengym.duarte-santos.ch adresinden indir',
+  'Download the APK from restofit.restaurantepro.com.br': 'APK’yı restofit.restaurantepro.com.br adresinden indir',
   'Releases are checked on gitlab.com. The download is verified against its checksum before the installer opens.': 'Sürümler gitlab.com üzerinde denetlenir. İndirme, yükleyici açılmadan önce sağlama toplamıyla doğrulanır.',
   'The web app updates together with your server. The Android app installs its own updates from here.': 'Web uygulaması sunucunla birlikte güncellenir. Android uygulaması güncellemelerini buradan kurar.',
   'Starting download…': 'İndirme başlatılıyor…',
