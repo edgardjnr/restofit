@@ -21,8 +21,9 @@ idioma padrão. O resto deste arquivo descreve o openGym original e continua val
 
 ### Produção (https://restofit.restaurantepro.com.br)
 - Push no `main` do GitHub dispara o CI: **Tests** e **Publish Docker images**
-  (`ghcr.io/edgardjnr/opengym-{web,api}:edge`). O job **Deploy demo to GitHub Pages** falha desde
-  antes do fork e não afeta a produção. O mirror para o GitLab é ignorado (skipped).
+  (`ghcr.io/edgardjnr/opengym-{web,api}:edge`). Os jobs **Deploy demo to GitHub Pages** e o mirror
+  para o GitLab só rodam no repositório original (`if: github.repository == ...`) e aparecem
+  como ignorados (skipped). O fork não tem Pages ativado; não remova essa trava.
 - **O servidor não se atualiza sozinho.** Depois do push, o usuário roda no servidor, a partir
   do código em `~/restofit`:
   ```bash
