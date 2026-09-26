@@ -143,9 +143,12 @@ export const gifSrc = ex => GIF_BASE + ex.gif
 //   also has a poster. The dataset still stays the fallback if the video fails.
 export const ATLAS_VIDEO_IDS = new Set(['0001'])
 export const ATLAS_POSTER_IDS = new Set([...ATLAS_VIDEO_IDS])
+// Bump when a file under public/atlas is replaced: nginx and Cloudflare keep .webp for 30 days as
+// immutable, so the same URL would keep serving the old picture (0001 had a Higgsfield version).
+const ATLAS_V = '?v=2'
 const listed = (set, ex) => !!(ex?.id && set.has(ex.id))
-export const videoSrc = ex => (listed(ATLAS_VIDEO_IDS, ex) ? 'atlas/' + ex.id + '.mp4' : null)
-export const posterSrc = ex => (listed(ATLAS_POSTER_IDS, ex) ? 'atlas/' + ex.id + '.webp' : null)
+export const videoSrc = ex => (listed(ATLAS_VIDEO_IDS, ex) ? 'atlas/' + ex.id + '.mp4' + ATLAS_V : null)
+export const posterSrc = ex => (listed(ATLAS_POSTER_IDS, ex) ? 'atlas/' + ex.id + '.webp' + ATLAS_V : null)
 
 // Cardio exercises log time + speed instead of weight × reps.
 export const isCardio = idOrEx => (typeof idOrEx === 'string' ? EXIDX[idOrEx] : idOrEx)?.bp === 'cardio'
