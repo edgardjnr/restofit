@@ -54,7 +54,7 @@ idioma padrão. O resto deste arquivo descreve o openGym original e continua val
 - O app usa **os GIFs e imagens originais do dataset** (hasaneyldrm/exercises-dataset, © Gym visual,
   ver `NOTICE.md`), exceto nos exercícios com vídeo próprio do personagem ATLAS-01, listados em
   `ATLAS_VIDEO_IDS` (`frontend/src/lib/exercises.js`), com arquivos em `frontend/public/atlas/`.
-  Em 2026-09-26 voltaram o `0001` (3/4 sit-up), o `0002` (45° side bend) , o `0003` (air bike), o `0006` (alternate heel touchers) e o `0007` (alternate lateral pulldown), gerados no **Kling**. Para fazer o próximo, use a
+  Em 2026-09-26 voltaram o `0001` (3/4 sit-up), o `0002` (45° side bend) , o `0003` (air bike), o `0006` (alternate heel touchers), o `0007` (alternate lateral pulldown) e o `0009` (assisted chest dip), gerados no **Kling**. Para fazer o próximo, use a
   skill `.claude/skills/atlas01-video/SKILL.md` (seção "ESTADO ATUAL"). Os vídeos antigos do
   Higgsfield (como o `1714`) continuam fora do app.
 
