@@ -134,7 +134,7 @@ describe('videoSrc', () => {
 
   it('gives a webp poster to every video and to poster-only exercises, and nothing else', () => {
     expect(posterSrc({ id: '0001' })).toBe('atlas/0001.webp?v=2')
-    expect(posterSrc({ id: '0002' })).toBe(null)
+    expect(posterSrc({ id: '0002' })).toBe('atlas/0002.webp?v=2')
     expect(posterSrc({ id: '0025' })).toBe(null)
     expect(posterSrc(undefined)).toBe(null)
     for (const id of ATLAS_VIDEO_IDS) expect(ATLAS_POSTER_IDS.has(id)).toBe(true)
