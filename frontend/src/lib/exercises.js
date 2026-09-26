@@ -135,6 +135,18 @@ const GIF_BASE = ENV.VITE_GIF_BASE || 'gif/'
 export const imgSrc = ex => IMG_BASE + ex.img
 export const gifSrc = ex => GIF_BASE + ex.gif
 
+// Our own ATLAS-01 media, shipped inside the build so it works on every instance and in the mobile
+// app. Two independent lists:
+// - ATLAS_POSTER_IDS: public/atlas/<id>.webp, the exercise at its peak with the target muscle in
+//   red. It is the list thumbnail and what shows while the video loads. It can land before the video.
+// - ATLAS_VIDEO_IDS: public/atlas/<id>.mp4, played in a loop instead of the GIF. Every video id
+//   also has a poster. The dataset still stays the fallback if the video fails.
+export const ATLAS_VIDEO_IDS = new Set(['0001'])
+export const ATLAS_POSTER_IDS = new Set([...ATLAS_VIDEO_IDS])
+const listed = (set, ex) => !!(ex?.id && set.has(ex.id))
+export const videoSrc = ex => (listed(ATLAS_VIDEO_IDS, ex) ? 'atlas/' + ex.id + '.mp4' : null)
+export const posterSrc = ex => (listed(ATLAS_POSTER_IDS, ex) ? 'atlas/' + ex.id + '.webp' : null)
+
 // Cardio exercises log time + speed instead of weight × reps.
 export const isCardio = idOrEx => (typeof idOrEx === 'string' ? EXIDX[idOrEx] : idOrEx)?.bp === 'cardio'
 

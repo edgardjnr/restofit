@@ -52,11 +52,11 @@ idioma padrão. O resto deste arquivo descreve o openGym original e continua val
 
 ### Mídia dos exercícios
 - O app usa **os GIFs e imagens originais do dataset** (hasaneyldrm/exercises-dataset, © Gym visual,
-  ver `NOTICE.md`). Decisão do usuário (2026-09-24): o projeto de mídia própria com o personagem
-  ATLAS-01 (vídeos no Higgsfield) foi **pausado e removido do app** (commit `aa54371`). O usuário quer
-  retomar com **vídeos** em outra sessão: comece pela seção "RETOMAR AQUI" da skill
-  `.claude/skills/atlas01-video/SKILL.md` (como religar o app, o que funcionou e o que evitar). Não
-  reintroduza `public/atlas/` sem o usuário pedir.
+  ver `NOTICE.md`), exceto nos exercícios com vídeo próprio do personagem ATLAS-01, listados em
+  `ATLAS_VIDEO_IDS` (`frontend/src/lib/exercises.js`), com arquivos em `frontend/public/atlas/`.
+  Em 2026-09-26 voltou só o `0001` (3/4 sit-up), gerado no **Kling**. Para fazer o próximo, use a
+  skill `.claude/skills/atlas01-video/SKILL.md` (seção "ESTADO ATUAL"). Os vídeos antigos do
+  Higgsfield (`0002`, `1714`) continuam fora do app.
 
 ### Rodar localmente
 - `cd frontend && npm run dev` (porta 5173; API em :3000). Sem `MEDIA_TARGET`, o dev server busca

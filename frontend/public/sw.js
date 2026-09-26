@@ -72,6 +72,9 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url)
   if (e.request.method !== 'GET' || url.origin !== location.origin) return
   if (url.pathname.startsWith('/api/')) return    // never cache auth/data
+  // ATLAS-01 videos stream with Range requests (206), which the cache can't hold — let the
+  // browser fetch them directly.
+  if (url.pathname.endsWith('.mp4')) return
 
   const isMedia = url.pathname.includes('/img/') || url.pathname.includes('/gif/')
   if (isMedia) {
