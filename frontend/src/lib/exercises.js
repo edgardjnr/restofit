@@ -141,7 +141,7 @@ export const gifSrc = ex => GIF_BASE + ex.gif
 //   red. It is the list thumbnail and what shows while the video loads. It can land before the video.
 // - ATLAS_VIDEO_IDS: public/atlas/<id>.mp4, played in a loop instead of the GIF. Every video id
 //   also has a poster. The dataset still stays the fallback if the video fails.
-export const ATLAS_VIDEO_IDS = new Set(['0001', '0002', '0003'])
+export const ATLAS_VIDEO_IDS = new Set(['0001', '0002', '0003', '0006'])
 export const ATLAS_POSTER_IDS = new Set([...ATLAS_VIDEO_IDS])
 // Bump when a file under public/atlas is replaced: nginx and Cloudflare keep .webp for 30 days as
 // immutable, so the same URL would keep serving the old picture (0001 had a Higgsfield version).
