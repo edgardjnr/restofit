@@ -59,7 +59,7 @@ idioma padrão. O resto deste arquivo descreve o openGym original e continua val
   é: **imagem do ATLAS-01 parado, com o músculo sempre pintado, + prompt simples do movimento → vídeo
   no Kling** (`kling-video-v3_0`), montado num **WebP animado** (`atlas/<id>-anim.webp`, lista `ATLAS_ANIM_IDS`), que o app mostra
   como imagem, igual aos GIFs; o usuário reprovou o mp4 por borrar. O `0001`, `0002` e `0006` já são
-  assim (o `0003` ficou com o vídeo antigo, que o usuário achou melhor) (`ATLAS_V = '?v=9'`); `ATLAS_VIDEO_IDS` guarda os vídeos antigos até serem refeitos. Os vídeos antigos do
+  assim (o `0003` ficou com o vídeo antigo, que o usuário achou melhor) (`ATLAS_V = '?v=10'`); `ATLAS_VIDEO_IDS` guarda os vídeos antigos até serem refeitos. Os vídeos antigos do
   Higgsfield (como o `1714`) continuam fora do app.
 
 ### Rodar localmente
