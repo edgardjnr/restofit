@@ -150,7 +150,7 @@ export const ATLAS_VIDEO_IDS = new Set(['0002', '0003', '0007', '0009'])
 export const ATLAS_POSTER_IDS = new Set([...ATLAS_ANIM_IDS, ...ATLAS_VIDEO_IDS])
 // Bump when a file under public/atlas is replaced: nginx and Cloudflare keep .webp for 30 days as
 // immutable, so the same URL would keep serving the old picture (0001 had a Higgsfield version).
-const ATLAS_V = '?v=5'
+const ATLAS_V = '?v=6'
 const listed = (set, ex) => !!(ex?.id && set.has(ex.id))
 export const animSrc = ex => (listed(ATLAS_ANIM_IDS, ex) ? 'atlas/' + ex.id + '-anim.webp' + ATLAS_V : null)
 export const videoSrc = ex => (listed(ATLAS_VIDEO_IDS, ex) ? 'atlas/' + ex.id + '.mp4' + ATLAS_V : null)
