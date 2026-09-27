@@ -56,8 +56,10 @@ idioma padrão. O resto deste arquivo descreve o openGym original e continua val
   `ATLAS_VIDEO_IDS` (`frontend/src/lib/exercises.js`), com arquivos em `frontend/public/atlas/`.
   Em 2026-09-26 voltaram o `0001` (3/4 sit-up), o `0002` (45° side bend) , o `0003` (air bike), o `0006` (alternate heel touchers), o `0007` (alternate lateral pulldown) e o `0009` (assisted chest dip), gerados no **Kling**. Para fazer o próximo, use a
   skill `.claude/skills/atlas01-video/SKILL.md` (seção "PADRÃO ATUAL"). Desde 2026-09-26 o padrão
-  é a **prancha de 12 poses**: uma imagem `gpt-image2` no Kling com 12 painéis, montada em mp4 pelo
-  `sheet_anim.py`. O `0006` e o `0001` já são assim (`ATLAS_V = '?v=4'`). Os vídeos antigos do
+  é a **prancha de poses**: uma imagem `gpt-image2` no Kling com as poses em painéis, montada pelo
+  `sheet_anim.py` num **WebP animado** (`atlas/<id>-anim.webp`, lista `ATLAS_ANIM_IDS`), que o app mostra
+  como imagem, igual aos GIFs; o usuário reprovou o mp4 por borrar. O `0001` e o `0006` já são assim
+  (`ATLAS_V = '?v=5'`); `ATLAS_VIDEO_IDS` guarda os vídeos antigos até serem refeitos. Os vídeos antigos do
   Higgsfield (como o `1714`) continuam fora do app.
 
 ### Rodar localmente

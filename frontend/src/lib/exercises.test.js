@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { existsSync } from 'node:fs'
-import { matchExercise, normalizeStr, videoSrc, posterSrc, ATLAS_VIDEO_IDS, ATLAS_POSTER_IDS, EXIDX } from './exercises.js'
+import { matchExercise, normalizeStr, videoSrc, posterSrc, animSrc, ATLAS_ANIM_IDS, ATLAS_VIDEO_IDS, ATLAS_POSTER_IDS, EXIDX } from './exercises.js'
 import { _setLangState } from './i18n-core.js'
 
 describe('normalizeStr', () => {
@@ -121,9 +121,24 @@ describe('matchExercise', () => {
   })
 })
 
+describe('animSrc', () => {
+  it('points redone ATLAS-01 exercises at their animated webp, and nothing else', () => {
+    expect(animSrc({ id: '0001' })).toBe('atlas/0001-anim.webp?v=5')
+    expect(animSrc({ id: '0002' })).toBe(null)
+    expect(animSrc({ id: '0025' })).toBe(null)
+    expect(animSrc({ n: 'custom' })).toBe(null)
+    expect(animSrc(undefined)).toBe(null)
+  })
+
+  it('never lists an exercise as both an animation and a video', () => {
+    for (const id of ATLAS_ANIM_IDS) expect(ATLAS_VIDEO_IDS.has(id)).toBe(false)
+  })
+})
+
 describe('videoSrc', () => {
   it('points ATLAS-01 exercises at their bundled mp4', () => {
-    expect(videoSrc({ id: '0001' })).toBe('atlas/0001.mp4?v=4')
+    expect(videoSrc({ id: '0002' })).toBe('atlas/0002.mp4?v=5')
+    expect(videoSrc({ id: '0001' })).toBe(null)
   })
 
   it('returns null for exercises without a video and for custom ones', () => {
@@ -133,11 +148,11 @@ describe('videoSrc', () => {
   })
 
   it('gives a webp poster to every video and to poster-only exercises, and nothing else', () => {
-    expect(posterSrc({ id: '0001' })).toBe('atlas/0001.webp?v=4')
-    expect(posterSrc({ id: '0002' })).toBe('atlas/0002.webp?v=4')
+    expect(posterSrc({ id: '0001' })).toBe('atlas/0001.webp?v=5')
+    expect(posterSrc({ id: '0002' })).toBe('atlas/0002.webp?v=5')
     expect(posterSrc({ id: '0025' })).toBe(null)
     expect(posterSrc(undefined)).toBe(null)
-    for (const id of ATLAS_VIDEO_IDS) expect(ATLAS_POSTER_IDS.has(id)).toBe(true)
+    for (const id of [...ATLAS_VIDEO_IDS, ...ATLAS_ANIM_IDS]) expect(ATLAS_POSTER_IDS.has(id)).toBe(true)
   })
 
   it('only lists ids that exist in the exercise library', () => {
@@ -147,6 +162,9 @@ describe('videoSrc', () => {
   it('has the files in public/atlas for every listed id', () => {
     for (const id of ATLAS_VIDEO_IDS) {
       expect(existsSync(new URL(`../../public/atlas/${id}.mp4`, import.meta.url))).toBe(true)
+    }
+    for (const id of ATLAS_ANIM_IDS) {
+      expect(existsSync(new URL(`../../public/atlas/${id}-anim.webp`, import.meta.url))).toBe(true)
     }
     for (const id of ATLAS_POSTER_IDS) {
       expect(existsSync(new URL(`../../public/atlas/${id}.webp`, import.meta.url))).toBe(true)

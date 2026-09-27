@@ -139,14 +139,20 @@ export const gifSrc = ex => GIF_BASE + ex.gif
 // app. Two independent lists:
 // - ATLAS_POSTER_IDS: public/atlas/<id>.webp, the exercise at its peak with the target muscle in
 //   red. It is the list thumbnail and what shows while the video loads. It can land before the video.
-// - ATLAS_VIDEO_IDS: public/atlas/<id>.mp4, played in a loop instead of the GIF. Every video id
-//   also has a poster. The dataset still stays the fallback if the video fails.
-export const ATLAS_VIDEO_IDS = new Set(['0001', '0002', '0003', '0006', '0007', '0009'])
-export const ATLAS_POSTER_IDS = new Set([...ATLAS_VIDEO_IDS])
+// - ATLAS_ANIM_IDS: public/atlas/<id>-anim.webp, an animated WebP shown like the GIF (an image,
+//   not a video: the video compression blurred the muscle fibres). The current format, built from
+//   one sheet of poses. Every animation id also has a poster.
+// - ATLAS_VIDEO_IDS: public/atlas/<id>.mp4, played in a loop instead of the GIF (older format, kept
+//   until each exercise is redone as an animation). Every video id also has a poster.
+// The dataset still stays the fallback if our media fails.
+export const ATLAS_ANIM_IDS = new Set(['0001', '0006'])
+export const ATLAS_VIDEO_IDS = new Set(['0002', '0003', '0007', '0009'])
+export const ATLAS_POSTER_IDS = new Set([...ATLAS_ANIM_IDS, ...ATLAS_VIDEO_IDS])
 // Bump when a file under public/atlas is replaced: nginx and Cloudflare keep .webp for 30 days as
 // immutable, so the same URL would keep serving the old picture (0001 had a Higgsfield version).
-const ATLAS_V = '?v=4'
+const ATLAS_V = '?v=5'
 const listed = (set, ex) => !!(ex?.id && set.has(ex.id))
+export const animSrc = ex => (listed(ATLAS_ANIM_IDS, ex) ? 'atlas/' + ex.id + '-anim.webp' + ATLAS_V : null)
 export const videoSrc = ex => (listed(ATLAS_VIDEO_IDS, ex) ? 'atlas/' + ex.id + '.mp4' + ATLAS_V : null)
 export const posterSrc = ex => (listed(ATLAS_POSTER_IDS, ex) ? 'atlas/' + ex.id + '.webp' + ATLAS_V : null)
 

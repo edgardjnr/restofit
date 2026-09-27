@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { imgSrc, gifSrc, videoSrc, posterSrc } from '../lib/exercises.js'
+import { imgSrc, gifSrc, videoSrc, posterSrc, animSrc } from '../lib/exercises.js'
 import { useStore } from '../store/useStore.js'
 import { t, exerciseNameFor } from '../lib/i18n.js'
 import Icon from './Icon.jsx'
@@ -23,6 +23,8 @@ export default function Media({ ex, id, compact, minimizable }) {
   const update = useStore(s => s.update)
   const videoRef = useRef(null)
   const video = videoSrc(ex)
+  // An ATLAS-01 animation plays like the GIF (an image); tap swaps to its poster, the peak frame.
+  const anim = animSrc(ex)
   // An ATLAS-01 video pauses in place on tap instead of swapping to the still.
   useEffect(() => {
     const v = videoRef.current
@@ -30,7 +32,7 @@ export default function Media({ ex, id, compact, minimizable }) {
     if (playing) v.play()?.catch(() => {})
     else v.pause()
   }, [playing])
-  if (!ex.gif && !video) return null
+  if (!ex.gif && !video && !anim) return null
   if (minimizable && gifSize === 'off') return null
   const mini = minimizable && gifSize === 'mini'
   const toggleSize = e => { e.stopPropagation(); update(s => { s.gifSize = mini ? 'full' : 'mini' }) }
@@ -47,7 +49,8 @@ export default function Media({ ex, id, compact, minimizable }) {
         : video && failed == null
           ? <video ref={videoRef} src={video} poster={posterSrc(ex)} autoPlay loop muted playsInline disablePictureInPicture
               aria-label={exerciseNameFor(ex)} onError={() => setFailed('gif')} />
-          : <img decoding="async" draggable={false} src={showGif ? gifSrc(ex) : imgSrc(ex)} alt={exerciseNameFor(ex)} onError={onError} />}
+          : <img decoding="async" draggable={false} alt={exerciseNameFor(ex)} onError={onError}
+              src={anim && failed == null ? (playing ? anim : posterSrc(ex)) : showGif ? gifSrc(ex) : imgSrc(ex)} />}
       {minimizable && (
         <button className="giftoggle" onClick={toggleSize}>
           <Icon name={mini ? 'expand' : 'minimize'} />{mini ? t('Expand') : t('Minimize')}
