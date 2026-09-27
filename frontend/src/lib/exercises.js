@@ -145,8 +145,10 @@ export const gifSrc = ex => GIF_BASE + ex.gif
 // - ATLAS_VIDEO_IDS: public/atlas/<id>.mp4, played in a loop instead of the GIF (older format, kept
 //   until each exercise is redone as an animation). Every video id also has a poster.
 // The dataset still stays the fallback if our media fails.
-export const ATLAS_ANIM_IDS = new Set(['0001', '0002', '0006', '1368', '1512', '3293'])
-export const ATLAS_VIDEO_IDS = new Set(['0003', '0007', '0009'])
+// Empty since 2026-09-27: the user paused the ATLAS-01 media and the app went back to the dataset
+// GIFs. The files and generation notes are kept in assets/ and in the atlas01-video skill.
+export const ATLAS_ANIM_IDS = new Set([])
+export const ATLAS_VIDEO_IDS = new Set([])
 export const ATLAS_POSTER_IDS = new Set([...ATLAS_ANIM_IDS, ...ATLAS_VIDEO_IDS])
 // Bump when a file under public/atlas is replaced: nginx and Cloudflare keep .webp for 30 days as
 // immutable, so the same URL would keep serving the old picture (0001 had a Higgsfield version).

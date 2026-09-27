@@ -121,36 +121,19 @@ describe('matchExercise', () => {
   })
 })
 
-describe('animSrc', () => {
-  it('points redone ATLAS-01 exercises at their animated webp, and nothing else', () => {
-    expect(animSrc({ id: '0001' })).toBe('atlas/0001-anim.webp?v=13')
-    expect(animSrc({ id: '0025' })).toBe(null)
-    expect(animSrc({ n: 'custom' })).toBe(null)
+describe('ATLAS-01 media', () => {
+  it('is switched off: every exercise uses the dataset GIF and image', () => {
+    for (const id of ['0001', '0002', '0003', '0006', '0025']) {
+      expect(animSrc({ id })).toBe(null)
+      expect(videoSrc({ id })).toBe(null)
+      expect(posterSrc({ id })).toBe(null)
+    }
     expect(animSrc(undefined)).toBe(null)
+    expect(videoSrc({ n: 'custom' })).toBe(null)
   })
 
   it('never lists an exercise as both an animation and a video', () => {
     for (const id of ATLAS_ANIM_IDS) expect(ATLAS_VIDEO_IDS.has(id)).toBe(false)
-  })
-})
-
-describe('videoSrc', () => {
-  it('points ATLAS-01 exercises at their bundled mp4', () => {
-    expect(videoSrc({ id: '0007' })).toBe('atlas/0007.mp4?v=13')
-    expect(videoSrc({ id: '0001' })).toBe(null)
-  })
-
-  it('returns null for exercises without a video and for custom ones', () => {
-    expect(videoSrc({ id: '0025' })).toBe(null)
-    expect(videoSrc({ n: 'custom' })).toBe(null)
-    expect(videoSrc(undefined)).toBe(null)
-  })
-
-  it('gives a webp poster to every video and to poster-only exercises, and nothing else', () => {
-    expect(posterSrc({ id: '0001' })).toBe('atlas/0001.webp?v=13')
-    expect(posterSrc({ id: '0002' })).toBe('atlas/0002.webp?v=13')
-    expect(posterSrc({ id: '0025' })).toBe(null)
-    expect(posterSrc(undefined)).toBe(null)
     for (const id of [...ATLAS_VIDEO_IDS, ...ATLAS_ANIM_IDS]) expect(ATLAS_POSTER_IDS.has(id)).toBe(true)
   })
 

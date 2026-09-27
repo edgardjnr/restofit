@@ -51,16 +51,16 @@ idioma padrão. O resto deste arquivo descreve o openGym original e continua val
   mostrar a hora do novo build.
 
 ### Mídia dos exercícios
-- O app usa **os GIFs e imagens originais do dataset** (hasaneyldrm/exercises-dataset, © Gym visual,
-  ver `NOTICE.md`), exceto nos exercícios com vídeo próprio do personagem ATLAS-01, listados em
-  `ATLAS_VIDEO_IDS` (`frontend/src/lib/exercises.js`), com arquivos em `frontend/public/atlas/`.
-  Em 2026-09-26 voltaram o `0001` (3/4 sit-up), o `0002` (45° side bend) , o `0003` (air bike), o `0006` (alternate heel touchers), o `0007` (alternate lateral pulldown) e o `0009` (assisted chest dip), gerados no **Kling**. Para fazer o próximo, use a
-  skill `.claude/skills/atlas01-video/SKILL.md` (seção "PADRÃO ATUAL"). Desde 2026-09-26 o padrão
-  é: **imagem do ATLAS-01 parado, com o músculo sempre pintado, + prompt simples do movimento → vídeo
-  no Kling** (`kling-video-v3_0`), montado num **WebP animado** (`atlas/<id>-anim.webp`, lista `ATLAS_ANIM_IDS`), que o app mostra
-  como imagem, igual aos GIFs; o usuário reprovou o mp4 por borrar. O `0001`, `0002` e `0006` já são
-  assim (o `0003` ficou com o vídeo antigo, que o usuário achou melhor) (`ATLAS_V = '?v=13'`); `ATLAS_VIDEO_IDS` guarda os vídeos antigos até serem refeitos. Os vídeos antigos do
-  Higgsfield (como o `1714`) continuam fora do app.
+- O app usa **só os GIFs e imagens originais do dataset** (hasaneyldrm/exercises-dataset, © Gym visual,
+  ver `NOTICE.md`). **Em 2026-09-27 o usuário pausou a mídia do ATLAS-01** e mandou voltar tudo para os
+  GIFs: `ATLAS_ANIM_IDS` e `ATLAS_VIDEO_IDS` (`frontend/src/lib/exercises.js`) estão vazias e
+  `frontend/public/atlas/` foi apagada. O código que toca a mídia própria (`Media.jsx`, `animSrc`,
+  `videoSrc`, `posterSrc`) continua; para religar, recoloque os arquivos e os ids nas listas e suba
+  `ATLAS_V` (hoje `?v=13`).
+- O trabalho feito fica guardado: imagens e vídeos em `assets/imagem referencia/musculos/` (fora do git),
+  receitas e prompts na skill `.claude/skills/atlas01-video/`, e os arquivos do app no histórico do git
+  (commit `bc9e7b5`, antes da remoção). Receita mais recente: imagem do ATLAS-01 parado com o músculo
+  sempre pintado + prompt do "Como fazer" → `kling-video-v3_0` → WebP animado. Não retome sem o usuário pedir.
 
 ### Rodar localmente
 - `cd frontend && npm run dev` (porta 5173; API em :3000). Sem `MEDIA_TARGET`, o dev server busca
