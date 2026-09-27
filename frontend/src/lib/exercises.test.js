@@ -123,8 +123,7 @@ describe('matchExercise', () => {
 
 describe('animSrc', () => {
   it('points redone ATLAS-01 exercises at their animated webp, and nothing else', () => {
-    expect(animSrc({ id: '0001' })).toBe('atlas/0001-anim.webp?v=7')
-    expect(animSrc({ id: '0002' })).toBe(null)
+    expect(animSrc({ id: '0001' })).toBe('atlas/0001-anim.webp?v=8')
     expect(animSrc({ id: '0025' })).toBe(null)
     expect(animSrc({ n: 'custom' })).toBe(null)
     expect(animSrc(undefined)).toBe(null)
@@ -137,7 +136,7 @@ describe('animSrc', () => {
 
 describe('videoSrc', () => {
   it('points ATLAS-01 exercises at their bundled mp4', () => {
-    expect(videoSrc({ id: '0002' })).toBe('atlas/0002.mp4?v=7')
+    expect(videoSrc({ id: '0007' })).toBe('atlas/0007.mp4?v=8')
     expect(videoSrc({ id: '0001' })).toBe(null)
   })
 
@@ -148,8 +147,8 @@ describe('videoSrc', () => {
   })
 
   it('gives a webp poster to every video and to poster-only exercises, and nothing else', () => {
-    expect(posterSrc({ id: '0001' })).toBe('atlas/0001.webp?v=7')
-    expect(posterSrc({ id: '0002' })).toBe('atlas/0002.webp?v=7')
+    expect(posterSrc({ id: '0001' })).toBe('atlas/0001.webp?v=8')
+    expect(posterSrc({ id: '0002' })).toBe('atlas/0002.webp?v=8')
     expect(posterSrc({ id: '0025' })).toBe(null)
     expect(posterSrc(undefined)).toBe(null)
     for (const id of [...ATLAS_VIDEO_IDS, ...ATLAS_ANIM_IDS]) expect(ATLAS_POSTER_IDS.has(id)).toBe(true)
