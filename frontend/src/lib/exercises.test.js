@@ -126,7 +126,7 @@ describe('ATLAS-01 media', () => {
     expect(animSrc({ id: '0001' })).toMatch(/^atlas\/0001-anim\.webp\?v=\d+$/)
     expect(posterSrc({ id: '0001' })).toMatch(/^atlas\/0001\.webp\?v=\d+$/)
     expect(videoSrc({ id: '0001' })).toBe(null)
-    for (const id of ['0025', '1368']) {
+    for (const id of ['0025', '0004']) {
       expect(animSrc({ id })).toBe(null)
       expect(videoSrc({ id })).toBe(null)
       expect(posterSrc({ id })).toBe(null)
