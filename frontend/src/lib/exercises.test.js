@@ -122,8 +122,11 @@ describe('matchExercise', () => {
 })
 
 describe('ATLAS-01 media', () => {
-  it('is switched off: every exercise uses the dataset GIF and image', () => {
-    for (const id of ['0001', '0002', '0003', '0006', '0025']) {
+  it('uses the ATLAS-01 animation and poster only for listed ids', () => {
+    expect(animSrc({ id: '0001' })).toMatch(/^atlas\/0001-anim\.webp\?v=\d+$/)
+    expect(posterSrc({ id: '0001' })).toMatch(/^atlas\/0001\.webp\?v=\d+$/)
+    expect(videoSrc({ id: '0001' })).toBe(null)
+    for (const id of ['0025', '1368']) {
       expect(animSrc({ id })).toBe(null)
       expect(videoSrc({ id })).toBe(null)
       expect(posterSrc({ id })).toBe(null)
