@@ -13,3 +13,4 @@ upstream correction.
 | `2139` hands bike | Step 2 says to place the feet on pedals of an upper-body ergometer. | Setup translated faithfully. |
 | `0987` band one arm single leg split squat | Step 2 says to extend one leg forward but rest that foot on a bench behind the user. | Portuguese clarifies that the other foot rests behind, preserving usable split-squat mechanics; this intentional divergence is documented here. |
 | `3294` archer push up | Step 3 says to bend both elbows although the preceding step extends one arm. | Portuguese identifies the supporting arm to avoid an ambiguous unsafe cue; this intentional clarification is documented here. |
+| `1512` all fours squad stretch | Steps 2–3 said to extend one leg back and lower the hips, which does not match the GIF (the hand pulls the foot of the bent leg toward the glutes). | Fixed in every language and in the English `st` (2026-09-30): the steps now describe the GIF. |
